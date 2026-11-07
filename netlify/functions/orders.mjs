@@ -13,6 +13,8 @@
 // Optional environment variables: ADMIN_SECRET, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_SUBJECT (all made for you if missing).
 
 import webpush from "web-push";
+import { currentUser, saveUser, getUser, normEmail } from "../lib/auth.mjs";
+import { mailNewOrder, mailReadyToClient } from "../lib/mail.mjs";
 import { store, getJSON, putJSON, json, validKey, isAdmin, adminState, setAdmin, vapidKeys, deliveredFiles, r2Ready } from "../lib/r2.mjs";
 
 const REC = (k) => `orders/${k}.json`;
@@ -85,13 +87,18 @@ export default async (req) => {
       if (!validKey(b.k)) return json({ error: "Bad key" }, 400);
       if (await getJSON(REC(b.k))) return json({ ok: true, k: b.k });
       const created = Date.now(), cut = (v, n) => String(v || "").slice(0, n);
+      const user = await currentUser(req);
+      if (user) { b.email = user.email; b.name = b.name || user.name; b.place = b.place || user.brand; }
+      const owner = !!(user && user.role === "owner");
       await putJSON(REC(b.k), {
         k: b.k, order: cut(b.order, 40), plan: cut(b.plan, 60), place: cut(b.place, 200), name: cut(b.name, 120), email: cut(b.email, 200),
         link: cut(b.link, 1000), brief: cut(b.brief, 4000), notes: cut(b.notes, 2000), files: cut(b.files, 20000), kind: cut(b.kind || "order", 40),
-        created, eta: created + etaMinutes(b.plan) * 60000, status: "working", paid: false, subs: [],
+        created, eta: created + etaMinutes(b.plan) * 60000, status: "working", paid: owner, test: owner, subs: [],
       });
-      try { await buzzOwner(await getJSON(REC(b.k)), origin); } catch {}
-      return json({ ok: true, k: b.k });
+      if (user) { user.orders = [b.k].concat((user.orders || []).filter((x) => x !== b.k)); if (!user.brand && b.place) user.brand = cut(b.place, 200); await saveUser(user); }
+      const rec = await getJSON(REC(b.k));
+      await Promise.allSettled([buzzOwner(rec, origin), mailNewOrder(rec, origin)]);
+      return json({ ok: true, k: b.k, skipPay: owner, account: !!user });
     }
 
     if (path.endsWith("/ready") && req.method === "GET") {
@@ -127,17 +134,23 @@ export default async (req) => {
         return json({ list: list.slice(0, 80) });
       }
       const b = await req.json();
+      if (b.action === "owner") {
+        const u = await getUser(normEmail(b.email));
+        if (!u) return json({ error: "No account with that email yet. Sign up on the site first." }, 404);
+        u.role = "owner"; await saveUser(u);
+        return json({ ok: true, owner: u.email });
+      }
       if (!validKey(b.k)) return json({ error: "Bad key" }, 400);
       const rec = await getJSON(REC(b.k));
       if (!rec) return json({ error: "No order with this key" }, 404);
       let sent = 0;
-      if (b.action === "ready") { rec.status = "ready"; rec.readyAt = Date.now(); sent = await buzz(rec, origin); }
+      if (b.action === "ready") { rec.status = "ready"; rec.readyAt = Date.now(); sent = await buzz(rec, origin); rec.mailed = await mailReadyToClient(rec, origin); }
       else if (b.action === "working") { rec.status = "working"; rec.readyAt = null; }
       else if (b.action === "note") rec.note = String(b.note || "").slice(0, 500);
       else if (b.action === "delivery") rec.deliveryLink = String(b.link || "").slice(0, 1000);
       else if (b.action === "paid") rec.paid = true;
       await putJSON(REC(b.k), rec);
-      return json({ ok: true, status: rec.status, sent, files: (await deliveredFiles(rec.k)).length });
+      return json({ ok: true, status: rec.status, sent, mailed: !!rec.mailed, files: (await deliveredFiles(rec.k)).length });
     }
 
     return json({ error: "Not found" }, 404);

@@ -199,7 +199,7 @@
 <div class="wrap">
   <div class="topbar">
     <a class="logo" href="index.html"><svg viewBox="0 0 44 44" aria-hidden="true"><path class="room" d="M4 18 22 4l18 14v22H4z"/><rect class="seam" x="21" y="6" width="2" height="34"/></svg>Same</a>
-    <a class="pill" href="index.html">← Back to the site</a>
+    <span style="display:flex;gap:8px;flex-wrap:wrap"><a class="pill" href="index.html">← Site</a><a class="pill" href="account.html" id="spacelink" style="background:var(--ink);color:var(--on-ink)">Your space</a></span>
   </div>
 
   <!-- the order form -->
@@ -323,7 +323,7 @@
         <li><b>Something off?</b><span>Reply to the Stripe receipt or write to hello@samestudio.co. We fix it, free. A real person answers.</span></li>
       </ul>
     </div>
-    <div class="send fade"><a class="btn" id="track" href="ready.html">See your order <span class="arr">↗</span></a><a class="btn" style="background:transparent;color:var(--ink);border:1px solid var(--ink)" href="index.html">Back to the site</a></div>
+    <div class="send fade"><a class="btn" id="track" href="account.html">Open your space <span class="arr">↗</span></a><a class="btn" style="background:transparent;color:var(--ink);border:1px solid var(--ink)" href="index.html">Back to the site</a></div>
   </section>
 </div>
 
@@ -334,12 +334,21 @@
   var picked=[]; // {file, el, bar, key, link, done, err}
   var API='/api/upload';
   var preview = /claude/.test(location.hostname) || location.protocol==='file:';
+  /* your space first: every order lands in an account */
+  (function(){ if(new URL(location.href).searchParams.get('paid')) return;
+    var toGate=function(){ location.replace('account.html?next='+encodeURIComponent('idea.html'+(location.hash||''))); };
+    var fill=function(u){ var f=function(n){return form.querySelector('[name='+n+']')}; if(f('name')&&!f('name').value) f('name').value=u.name||''; if(f('email')){ f('email').value=u.email||''; f('email').readOnly=true; } if(f('place')&&!f('place').value) f('place').value=u.brand||''; var sl=document.getElementById('spacelink'); if(sl) sl.textContent=(u.name?u.name.split(' ')[0]+'\u2019s':'Your')+' space'; };
+    Same.hasPipe().then(function(live){
+      if(!live){ var du=null; try{ du=JSON.parse(localStorage.getItem('same.demoUser')||'null'); }catch(e){} return du?fill(du):toGate(); }
+      fetch('/api/account',{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()}).then(function(j){ if(!j.user) return toGate(); fill(j.user); }).catch(function(){});
+    });
+  })();
   /* no pipe behind this page? then it's a preview, whatever the address is */
   fetch('/api/checkout',{cache:'no-store'}).then(function(r){ if((r.headers.get('content-type')||'').indexOf('json')<0) preview=true; }).catch(function(){ preview=true; });
   var orderId='SM-'+new Date().toISOString().slice(2,10).replace(/-/g,'')+'-'+Math.random().toString(36).slice(2,6).toUpperCase();
   document.getElementById('order-field').value=orderId;
   var orderKey=Same.newKey(); document.getElementById('key-field').value=orderKey;
-  function remember(extra){ var o={k:orderKey,order:orderId,plan:(form.querySelector('input[name=plan]:checked')||{}).value||'',place:(form.querySelector('input[name=place]')||{value:''}).value.trim(),kind:'idea'}; if(extra) for(var x in extra) o[x]=extra[x]; Same.save(o); var tr=document.getElementById('track'); if(tr) tr.href=Same.readyUrl(orderKey); }
+  function remember(extra){ var o={k:orderKey,order:orderId,plan:(form.querySelector('input[name=plan]:checked')||{}).value||'',place:(form.querySelector('input[name=place]')||{value:''}).value.trim(),kind:'idea'}; if(extra) for(var x in extra) o[x]=extra[x]; Same.save(o);  }
   function planPrice(){ var v=(form.querySelector('input[name=plan]:checked')||{}).value||''; var m=v.match(/\$(\d+)/); return m?'$'+m[1]:''; }
   function syncPay(){ document.getElementById('paybtn-amount').textContent=planPrice(); }
   form.querySelectorAll('input[name=plan]').forEach(function(r){ r.addEventListener('change',syncPay); });
@@ -352,7 +361,7 @@
   syncPay();
   /* back from Stripe */
   var paid=new URL(location.href).searchParams.get('paid');
-  var backKey=new URL(location.href).searchParams.get('k'); if(backKey&&/^[a-z0-9]{12,40}$/i.test(backKey)){ orderKey=backKey; Same.save({k:backKey}); var tr0=document.getElementById('track'); if(tr0) tr0.href=Same.readyUrl(backKey); }
+  var backKey=new URL(location.href).searchParams.get('k'); if(backKey&&/^[a-z0-9]{12,40}$/i.test(backKey)){ orderKey=backKey; Same.save({k:backKey});  }
   if(paid){ showThanks('Checking your payment…'); fetch('/api/checkout?session='+encodeURIComponent(paid)).then(function(r){return r.json()}).then(function(j){ if(j.paid){ document.getElementById('thanks-line').textContent='Paid '+(j.amount/100).toFixed(0)+' '+String(j.currency||'usd').toUpperCase()+'. Order '+(j.order||'')+'. We\'re checking your files now.'; if(j.key) Same.save({k:j.key,order:j.order,plan:j.plan}); } else { document.getElementById('thanks-line').textContent='We did not see the payment go through. If your card was charged, reply to the Stripe receipt or email hello@samestudio.co.'; } }).catch(function(){}); }
   if(location.hash==='#cancel'){ status.textContent='Payment cancelled. Your files are still here. Tap Pay when you\'re ready.'; }
 
@@ -523,6 +532,7 @@
       /* the order is saved on our side first; payment comes after */
       return fetch('/api/order',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({k:orderKey,order:orderId,plan:plan,place:place,name:nm,email:email,kind:'idea',brief:brief,notes:notes,files:filesField.value})}).then(function(r){return r.json()}).then(function(o){
         if(!o||!o.ok){ btn.disabled=false; status.textContent=((o&&o.error)||'Could not save the order.')+' Email us at hello@samestudio.co and we\'ll take it from there.'; return; }
+        if(o.skipPay){ btn.disabled=false; status.textContent=''; showThanks('Order '+orderId+' is in. You\u2019re the owner, so no payment. It lands in your space when it\u2019s done.'); return; }
         status.textContent='Taking you to the payment…';
         return fetch('/api/checkout',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({plan:plan,email:email,place:place,order:orderId,key:orderKey,page:'idea'})}).then(function(r){return r.json()}).then(function(j){
           if(j.url){ location.href=j.url; return; }

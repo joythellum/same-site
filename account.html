@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="theme-color" content="#f4e9e1" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#16130f" media="(prefers-color-scheme: dark)">
+<meta name="color-scheme" content="light dark">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Your space · Same</title>
+<meta name="description" content="Your space at Same: every photo and video we make for you, ready to download.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,800&family=Figtree:wght@400;600;700&display=swap">
+<style>
+  [hidden]{display:none!important}
+  :root{
+    --paper:#f4e9e1; --surface:#ffffff; --ink:#0d0d0d; --ink-soft:#4d4741; --line:#0d0d0d; --daylight-soft:#ffe7a8; --on-color:#0d0d0d;
+    --blue:#0072e3; --daylight:#ffb200; --coral:#ff5c38; --red:#ea3737; --lime:#1be349; --mist:#eef1f5; --on-ink:#f4e9e1;
+    --font-display:"Bricolage Grotesque","Arial Black",Arial,sans-serif;
+    --font-sans:"Figtree","Helvetica Neue",Arial,sans-serif;
+    --r-card:30px; --r-pill:100px; --gap:20px;
+    --gutter-l:max(16px, env(safe-area-inset-left, 0px)); --gutter-r:max(16px, env(safe-area-inset-right, 0px));
+    --ease-out:cubic-bezier(.19,1,.22,1);
+    color-scheme:light;
+  }
+  /* same:dark */
+  :root{--on-color:#0d0d0d}
+  @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){ --paper:#16130f; --surface:#221e1a; --ink:#f4e9e1; --ink-soft:#c2b6aa; --line:rgba(244,233,225,.42); --blue:#2a84ea; --blue-ink:#7db5ff; --daylight:#f2a900; --daylight-soft:#4a3a12; --coral:#f25a37; --violet:#a85cf5; --lilac:#b48ff0; --red:#e03a3a; --orange:#f26200; --green:#0fa844; --lime:#22d94d; --mist:#2b2622; --dusk-ink:#c9d2db; --blue-dull:#8fa3b8; --on-ink:#16130f; color-scheme:dark; } }
+  :root[data-theme="dark"]{ --paper:#16130f; --surface:#221e1a; --ink:#f4e9e1; --ink-soft:#c2b6aa; --line:rgba(244,233,225,.42); --blue:#2a84ea; --blue-ink:#7db5ff; --daylight:#f2a900; --daylight-soft:#4a3a12; --coral:#f25a37; --violet:#a85cf5; --lilac:#b48ff0; --red:#e03a3a; --orange:#f26200; --green:#0fa844; --lime:#22d94d; --mist:#2b2622; --dusk-ink:#c9d2db; --blue-dull:#8fa3b8; --on-ink:#16130f; color-scheme:dark; }
+  .yellow,.coral,.violet,.orange,.green,.red,.lilac,.lime,.tile.c2,.tile.c3,.tile.c4,.pill.red,.pill.lime,.mosaic .cell .pill,.handle,.eta-ico,.ribbon,.pane.sky,.plan .tagx,.st,.drop.over,.same-island{--paper:#f4e9e1;--surface:#ffffff;--ink:#0d0d0d;--ink-soft:#4d4741;--line:#0d0d0d;--mist:#eef1f5;--on-ink:#f4e9e1;--dusk-ink:#3f4a55;color:var(--ink)}
+  .braind,.rail .braind-btn{--ink:#0d0d0d;--on-ink:#f4e9e1;background:#111114;color:#f4e9e1}
+  .btn.ghost{background:var(--surface);color:var(--ink)}
+  html{background:var(--paper)}
+  @media (prefers-reduced-motion: no-preference){ html{transition:background .4s ease} body{transition:background .4s ease,color .4s ease} }
+
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);font:400 16px/1.45 var(--font-sans);-webkit-font-smoothing:antialiased;padding:calc(12px + env(safe-area-inset-top,0px)) var(--gutter-r) 48px var(--gutter-l)}
+  h1,h2,h3,p{margin:0}
+  .wrap{max-width:780px;margin:0 auto;display:flex;flex-direction:column;gap:var(--gap)}
+  .topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:6px 0 10px}
+  .logo{text-decoration:none;color:var(--ink);font:800 24px/1 var(--font-display);letter-spacing:-.03em;display:flex;align-items:center;gap:6px;white-space:nowrap}
+  .logo svg{width:22px;height:22px} .logo .room{fill:var(--blue)} .logo .seam{fill:var(--daylight)}
+  .pill{display:inline-flex;align-items:center;gap:8px;padding:8px 18px;border:1px solid var(--line);border-radius:var(--r-pill);font:600 14px/1.2 var(--font-sans);color:var(--ink);text-decoration:none;background:transparent;white-space:nowrap}
+  .pill.big{font:800 clamp(18px,1.6vw,22px)/1.1 var(--font-display);letter-spacing:-.01em;padding:12px 24px;background:var(--ink);color:var(--on-ink)}
+  .pill .d{width:10px;height:10px;border-radius:50%;background:var(--daylight);animation:pulse 1.6s ease-in-out infinite}
+  .pill.ready .d{background:var(--lime);animation:none;box-shadow:0 0 10px var(--lime)}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+  .card{border-radius:var(--r-card);padding:30px 25px;position:relative}
+  .card.line{border:1px solid var(--line)}
+  .yellow{background:var(--daylight)} .lime{background:var(--lime)} .coral{background:var(--coral)} .white{background:var(--surface)}
+  .d1{font:800 clamp(36px,6vw,64px)/.98 var(--font-display);letter-spacing:-.02em;text-wrap:balance}
+  .d3{font:800 clamp(22px,2.4vw,28px)/1.05 var(--font-display);letter-spacing:-.01em}
+  .body{font-size:15px;line-height:1.5}
+  .muted{color:var(--ink-soft);font-size:13px;line-height:1.45}
+  .row{display:flex;flex-wrap:wrap;align-items:center;gap:12px}
+  .btn{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:10px;padding:16px 28px;border:0;border-radius:var(--r-pill);font:700 16px/1 var(--font-sans);color:var(--on-ink);background:var(--ink);cursor:pointer;text-decoration:none;overflow:hidden;isolation:isolate;white-space:nowrap;transition:color .4s var(--ease-out),transform .4s var(--ease-out)}
+  .btn::before{content:"";position:absolute;inset:0;background:var(--daylight);transform:translateY(101%);transition:transform .5s var(--ease-out);z-index:-1;border-radius:inherit}
+  .btn:hover{color:var(--on-color);transform:translateY(-2px)} .btn:hover::before{transform:translateY(0)}
+  .btn:disabled{opacity:.6;cursor:wait;transform:none}
+  .btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)} .btn.ghost::before{background:var(--ink)} .btn.ghost:hover{color:var(--on-ink)}
+  .btn .arr{display:inline-block;transition:transform .4s var(--ease-out)} .btn:hover .arr{transform:translate(3px,-3px)}
+  .status{font-size:14px;min-height:1.3em}
+  .big-time{font:800 clamp(44px,8vw,84px)/.95 var(--font-display);letter-spacing:-.03em}
+  .gal{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-top:18px}
+  .gal a{position:relative;display:block;aspect-ratio:1;border-radius:16px;overflow:hidden;background:var(--mist);text-decoration:none;color:#fff}
+  .gal img,.gal video{width:100%;height:100%;object-fit:cover;display:block}
+  .gal .nm{position:absolute;left:0;right:0;bottom:0;padding:6px 8px;background:linear-gradient(transparent,rgba(13,13,13,.75));font:600 11px/1.2 var(--font-sans);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .gal .ic{position:absolute;top:8px;right:8px;width:30px;height:30px;border-radius:50%;background:rgba(13,13,13,.7);display:grid;place-items:center;font-weight:700}
+  .linkbox{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:12px}
+  .linkbox input{flex:1;min-width:200px;font:600 15px var(--font-sans);padding:14px 16px;border:1px solid var(--line);border-radius:14px;background:var(--surface);color:var(--ink)}
+  .qrwrap{display:flex;gap:22px;align-items:center;flex-wrap:wrap;margin-top:16px}
+  #qr{background:#fff;padding:12px;border-radius:18px;display:inline-block;line-height:0}
+  #qr img,#qr canvas{display:block;width:160px;height:160px}
+  .steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+  .steps li{display:flex;gap:14px;padding:12px 0;border-top:1px solid var(--line);font-size:15px}
+  .steps li:last-child{border-bottom:1px solid var(--line)}
+  .steps b{font-weight:700;flex:none;min-width:8em}
+  .fade{animation:up .9s var(--ease-out) both}
+  .fade:nth-child(2){animation-delay:.08s} .fade:nth-child(3){animation-delay:.16s} .fade:nth-child(4){animation-delay:.24s} .fade:nth-child(5){animation-delay:.32s}
+  @keyframes up{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
+  .tag{display:inline-block;padding:4px 10px;border-radius:999px;background:rgba(13,13,13,.1);font:700 11px/1 var(--font-sans);margin-left:8px;vertical-align:middle}
+  @media (max-width:640px){.card{padding:24px 18px}}
+
+  .tabs{display:flex;gap:8px;margin-top:22px}
+  .tab{border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:999px;padding:10px 18px;font:700 14px var(--font-sans);cursor:pointer}
+  .tab.on{background:var(--ink);color:var(--on-ink)}
+  .card .tab{border-color:#0d0d0d;color:#0d0d0d} .card .tab.on{background:#0d0d0d;color:#f4e9e1}
+  form.f{display:flex;flex-direction:column;gap:12px;margin-top:18px;max-width:440px}
+  label.fl{display:flex;flex-direction:column;gap:6px;font:700 13px/1.2 var(--font-sans)}
+  label.fl input{font:400 16px var(--font-sans);padding:14px 16px;border:1px solid #0d0d0d;border-radius:14px;background:#fff;color:#0d0d0d;width:100%}
+  label.fl input:focus-visible{outline:3px solid #0d0d0d;outline-offset:2px}
+  .orders{display:flex;flex-direction:column;gap:14px}
+  .ord{border-radius:24px;padding:22px 20px}
+  .ord .top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+  .ord .t{font:800 22px/1.05 var(--font-display);letter-spacing:-.01em}
+  .ord .m{font-size:13px;margin-top:6px;opacity:.85}
+  .chip{display:inline-flex;align-items:center;gap:8px;padding:6px 12px;border-radius:999px;background:#0d0d0d;color:#f4e9e1;font:700 12px/1 var(--font-sans);white-space:nowrap}
+  .chip .d{width:8px;height:8px;border-radius:50%;background:var(--daylight);animation:pulse 1.6s ease-in-out infinite}
+  .chip.ok .d{background:var(--lime);animation:none}
+  .ord .acts{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+  .ord .btn{padding:13px 22px;font-size:15px}
+  .thumbs{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:8px;margin-top:14px}
+  .thumbs a{display:block;aspect-ratio:1;border-radius:12px;overflow:hidden;background:#eef1f5}
+  .thumbs img,.thumbs video{width:100%;height:100%;object-fit:cover;display:block}
+  .empty{border:1px dashed var(--line);border-radius:24px;padding:26px 22px}
+  .who{display:flex;justify-content:space-between;align-items:flex-end;gap:14px;flex-wrap:wrap}
+  .tester{display:inline-block;margin-left:8px;padding:3px 8px;border-radius:999px;background:#0d0d0d;color:#f4e9e1;font:700 10px/1 var(--font-sans);letter-spacing:.06em;text-transform:uppercase;vertical-align:middle}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <a class="logo" href="index.html"><svg viewBox="0 0 44 44" aria-hidden="true"><path class="room" d="M4 18 22 4l18 14v22H4z"/><rect class="seam" x="21" y="6" width="2" height="34"/></svg>Same</a>
+    <a class="pill" href="index.html">← Back to the site</a>
+  </div>
+
+  <!-- not logged in -->
+  <section id="gate" hidden>
+    <div class="card yellow fade">
+      <span class="pill big">Your space</span>
+      <h1 class="d1" style="margin-top:22px">This is where your work lands.</h1>
+      <p class="body" style="margin-top:14px;max-width:34em" id="gate-line">Make your space once. Every photo and video we edit for you shows up here, ready to download, any time, on any device.</p>
+      <div class="tabs" role="tablist"><button class="tab on" data-t="signup" type="button">Create my space</button><button class="tab" data-t="login" type="button">I have one</button></div>
+      <form class="f" id="f-signup">
+        <label class="fl">Your name<input name="name" autocomplete="name" required placeholder="Your name"></label>
+        <label class="fl">Your brand<input name="brand" autocomplete="organization" placeholder="Trattoria Luna, Studio Mar, @yourname…"></label>
+        <label class="fl">Your email<input name="email" type="email" autocomplete="email" inputmode="email" required placeholder="you@email.com"></label>
+        <label class="fl">Pick a password<input name="password" type="password" autocomplete="new-password" minlength="8" required placeholder="8 or more characters"></label>
+        <div class="row" style="margin-top:6px"><button class="btn" type="submit">Create my space <span class="arr">↗</span></button></div>
+        <p class="status" id="s-signup" aria-live="polite"></p>
+      </form>
+      <form class="f" id="f-login" hidden>
+        <label class="fl">Your email<input name="email" type="email" autocomplete="email" inputmode="email" required placeholder="you@email.com"></label>
+        <label class="fl">Your password<input name="password" type="password" autocomplete="current-password" required></label>
+        <div class="row" style="margin-top:6px"><button class="btn" type="submit">Open my space <span class="arr">↗</span></button></div>
+        <p class="status" id="s-login" aria-live="polite"></p>
+        <p class="muted" style="color:#4d4741">Forgot it? Write to hello@samestudio.co from your email and we reset it.</p>
+      </form>
+    </div>
+  </section>
+
+  <!-- logged in -->
+  <section id="space" hidden style="display:flex;flex-direction:column;gap:var(--gap)">
+    <div class="card yellow fade">
+      <div class="who">
+        <div><span class="pill big">Your space</span><h1 class="d1" style="margin-top:22px" id="hi">Hi.</h1><p class="body" style="margin-top:10px" id="who-line"></p></div>
+        <div class="row"><a class="btn" href="order.html">New order <span class="arr">↗</span></a><button class="btn ghost" id="logout" type="button">Log out</button></div>
+      </div>
+    </div>
+    <div class="fade" style="display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap"><h2 class="d3">Everything we've made for you</h2><span class="muted" id="count"></span></div>
+    <div class="orders" id="orders"></div>
+    <p class="muted fade" id="demo-note" hidden>Demo mode: this preview has no server behind it, so your space lives in this browser only. On the live site it lives on Same's side and follows you to any device.</p>
+  </section>
+</div>
+
+<script src="same-orders.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script>
+(function(){
+  var $=function(id){return document.getElementById(id)};
+  var q=new URL(location.href).searchParams, next=q.get('next');
+  if(next && !/^(order|idea)\.html(#[\w-]*)?$/.test(next)) next=null;
+  var live=false, me=null;
+  var esc=function(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); };
+  function knownKeys(){ return Same.list().map(function(o){return o.k}); }
+
+  /* demo (no server): the account lives in this browser */
+  var DEMO='same.demoUser';
+  function demoUser(){ try{ return JSON.parse(localStorage.getItem(DEMO)||'null'); }catch(e){ return null; } }
+  function setDemo(u){ try{ if(u) localStorage.setItem(DEMO,JSON.stringify(u)); else localStorage.removeItem(DEMO); }catch(e){} }
+
+  function api(path,body){ return fetch(path,body?{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body),credentials:'same-origin'}:{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()}); }
+
+  function load(){
+    if(!live){ var u=demoUser(); if(!u) return showGate();
+      return Promise.all(Same.list().map(function(o){ return Same.status(o.k); })).then(function(list){ render({user:u,orders:list.filter(Boolean)}); });
+    }
+    return api('/api/account').then(function(j){ if(!j.user) return showGate(); render(j); }).catch(showGate);
+  }
+  function showGate(){ $('space').hidden=true; $('gate').hidden=false; if(next) $('gate-line').textContent='Before your first order, make your space. This is where everything lands once it\'s done: every photo and video, ready to download, on any device.'; }
+  function after(){ if(next){ location.href=next; return; } load(); }
+
+  document.querySelectorAll('.tab').forEach(function(t){ t.addEventListener('click',function(){ document.querySelectorAll('.tab').forEach(function(x){x.classList.toggle('on',x===t)}); $('f-signup').hidden=t.dataset.t!=='signup'; $('f-login').hidden=t.dataset.t!=='login'; }); });
+
+  $('f-signup').addEventListener('submit',function(e){ e.preventDefault(); var f=e.target, st=$('s-signup');
+    var b={name:f.name.value.trim(),brand:f.brand.value.trim(),email:f.email.value.trim(),password:f.password.value,keys:knownKeys()};
+    if(b.password.length<8){ st.textContent='Pick a password of 8 or more characters.'; return; }
+    st.textContent='Making your space…';
+    if(!live){ setDemo({email:b.email.toLowerCase(),name:b.name,brand:b.brand,role:'client',created:Date.now()}); return after(); }
+    api('/api/account/signup',b).then(function(j){ if(j.error){ st.textContent=j.error; return; } after(); }).catch(function(){ st.textContent='No connection. Try again.'; });
+  });
+  $('f-login').addEventListener('submit',function(e){ e.preventDefault(); var f=e.target, st=$('s-login');
+    st.textContent='Opening…';
+    if(!live){ var u=demoUser(); if(u&&u.email===f.email.value.trim().toLowerCase()) return after(); st.textContent='No space with this email in this browser (demo).'; return; }
+    api('/api/account/login',{email:f.email.value.trim(),password:f.password.value,keys:knownKeys()}).then(function(j){ if(j.error){ st.textContent=j.error; return; } after(); }).catch(function(){ st.textContent='No connection. Try again.'; });
+  });
+  $('logout').addEventListener('click',function(){ if(!live){ setDemo(null); return load(); } api('/api/account/logout',{}).then(load); });
+
+  function render(j){
+    me=j.user; $('gate').hidden=true; $('space').hidden=false; $('demo-note').hidden=live;
+    $('hi').textContent='Hi'+(me.name?', '+me.name.split(' ')[0]:'')+'.';
+    $('who-line').innerHTML=esc(me.brand||'')+(me.brand?' · ':'')+esc(me.email)+(me.role==='owner'?'<span class="tester">Owner · free orders</span>':'');
+    var list=j.orders||[], box=$('orders'); box.innerHTML='';
+    $('count').textContent=list.length?(list.length+' order'+(list.length>1?'s':'')):'';
+    if(!list.length){ box.innerHTML='<div class="empty"><h3 class="d3">Nothing here yet.</h3><p class="body" style="margin-top:8px;max-width:34em">Send your first photos, a link, or just an idea. When it\'s done, it lands right here, and your email gets a note.</p><div class="row" style="margin-top:16px"><a class="btn" href="order.html">Send your media <span class="arr">↗</span></a></div></div>'; return; }
+    list.forEach(function(o){
+      var ready=o.status==='ready', el=document.createElement('article'); el.className='ord '+(ready?'lime':'coral');
+      var when=ready?('Ready '+new Date(o.readyAt).toLocaleDateString([],{day:'numeric',month:'short'})):('Ready by '+Same.fmtTime(o.readyAt));
+      el.innerHTML='<div class="top"><div><div class="t">'+esc(o.place||'Your order')+(o.test?' <span class="tester">Test</span>':'')+'</div><div class="m">'+esc(o.order||'')+' · '+esc(o.plan||'')+' · sent '+new Date(o.created).toLocaleDateString([],{day:'numeric',month:'short'})+'</div></div><span class="chip'+(ready?' ok':'')+'"><span class="d"></span>'+(ready?'Ready':'In our hands')+'</span></div>'
+        +(ready?'':'<p class="body" style="margin-top:12px">'+esc(when)+(o.demo?' (demo clock)':'')+'. You can close this. It lands here, and your email gets a note.</p>');
+      if(ready){
+        var th=document.createElement('div'); th.className='thumbs';
+        (o.files||[]).slice(0,12).forEach(function(f){ var a=document.createElement('a'); a.href=f.url; a.target='_blank'; a.rel='noopener'; var v=/\.(mp4|mov|webm|m4v)$/i.test(f.name); var m=document.createElement(v?'video':'img'); m.src=f.view||f.url; m.loading='lazy'; if(v){m.muted=true;m.playsInline=true;} else m.alt=f.name; a.appendChild(m); th.appendChild(a); });
+        if((o.files||[]).length) el.appendChild(th);
+      }
+      var acts=document.createElement('div'); acts.className='acts';
+      if(ready&&(o.files||[]).length){ var dl=document.createElement('button'); dl.className='btn'; dl.type='button'; dl.innerHTML='Download all <span class="arr">↓</span>'; dl.addEventListener('click',function(){ zipAll(o,dl); }); acts.appendChild(dl); }
+      if(ready&&o.deliveryLink){ var vl=document.createElement('a'); vl.className='btn'; vl.target='_blank'; vl.rel='noopener'; vl.href=/^https?:/i.test(o.deliveryLink)?o.deliveryLink:'https://'+o.deliveryLink; vl.innerHTML='Open your videos <span class="arr">↗</span>'; acts.appendChild(vl); }
+      var op=document.createElement('a'); op.className='btn ghost'; op.href=Same.readyUrl(o.k); op.textContent=ready?'Open full view':'Track it · turn on alerts'; acts.appendChild(op);
+      el.appendChild(acts); box.appendChild(el);
+      Same.save({k:o.k,order:o.order,plan:o.plan,place:o.place,created:o.created});
+    });
+  }
+  function zipAll(o,btn){ btn.disabled=true; var z=new JSZip(), n=0, t=btn.innerHTML;
+    Promise.all(o.files.map(function(f){ return fetch(f.url).then(function(r){ if(!r.ok) throw 0; return r.blob(); }).then(function(b){ z.file(f.name,b); n++; btn.textContent='Packing '+n+'/'+o.files.length; }); }))
+    .then(function(){ return z.generateAsync({type:'blob'}); }).then(function(b){ var a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='Same-'+(o.order||o.k)+'.zip'; document.body.appendChild(a); a.click(); setTimeout(function(){URL.revokeObjectURL(a.href);a.remove();},4000); btn.innerHTML=t; btn.disabled=false; })
+    .catch(function(){ btn.textContent='Tap each photo to save it'; btn.disabled=false; }); }
+
+  Same.hasPipe().then(function(p){ live=p; load(); });
+})();
+</script>
+</body>
+</html>
