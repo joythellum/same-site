@@ -217,17 +217,19 @@
       <p class="body" style="margin-top:14px;max-width:36em">You already know how your brand should look. Talk to us the way you'd talk to a friend: what it is, who it's for, the feeling, the colors, the light, what inspires you and why. Repeat yourself, go off track, it doesn't matter. The more you, the closer we get.</p>
     </div>
 
-    <div class="card yellow fade">
+    <div class="card yellow fade" hidden>
+      <!-- plans are off while we test; kept for later -->
+      <input type="radio" name="plan" value="Test (no plan yet)" checked hidden>
       <div class="step"><span class="n">1</span><h2 class="d3">Pick a plan</h2></div>
       <div class="plans">
         <label class="plan"><input type="radio" name="plan" value="Everything $500"><span class="tagx">Most complete</span><span class="price">$500</span><span class="name">Everything</span><span class="what">Up to 100 photos in 30 min, 6 clips, preview, audit, WhatsApp line</span></label>
-        <label class="plan"><input type="radio" name="plan" value="The Set+ $350" checked><span class="tagx">Most chosen</span><span class="price">$350</span><span class="name">The Set+</span><span class="what">Up to 40 photos in 1 hour, 3 clips, preview, your look saved</span></label>
+        <label class="plan"><input type="radio" name="plan" value="The Set+ $350"><span class="tagx">Most chosen</span><span class="price">$350</span><span class="name">The Set+</span><span class="what">Up to 40 photos in 1 hour, 3 clips, preview, your look saved</span></label>
         <label class="plan"><input type="radio" name="plan" value="The Set $100"><span class="price">$100</span><span class="name">The Set</span><span class="what">Up to 15 photos in 1 hour, sized for every platform</span></label>
       </div>
     </div>
 
     <div class="card line fade" id="step2">
-      <div class="step"><span class="n">2</span><h2 class="d3">Express yourself as you want</h2></div>
+      <div class="step"><span class="n">1</span><h2 class="d3">Express yourself as you want</h2></div>
       <div class="ways" role="tablist" aria-label="How to tell us">
         <button type="button" class="way on" data-way="voice">Record my voice</button>
         <button type="button" class="way" data-way="video">Record a video of me</button>
@@ -286,7 +288,7 @@
     </div>
 
     <div class="card line fade">
-      <div class="step"><span class="n">3</span><h2 class="d3">Who it's for</h2></div>
+      <div class="step"><span class="n">2</span><h2 class="d3">Who it's for</h2></div>
       <p class="muted" style="margin:-6px 0 14px;max-width:34em"><b>Your email is only for the receipt.</b> No account, no password. Your order shows up right here on the site, and your phone gets a buzz when it's ready.</p>
       <div class="stack">
         <div class="two">
@@ -299,10 +301,10 @@
     </div>
 
     <div class="card lime fade">
-      <div class="step"><span class="n">4</span><h2 class="d3">Pay and send</h2></div>
+      <div class="step"><span class="n">3</span><h2 class="d3">Send it</h2></div>
       <div class="send">
-        <button class="btn bprem" type="submit" id="sendbtn"><span class="bword">Pay <span id="paybtn-amount">$350</span> and send</span> <span class="arr">↗</span></button>
-        <p class="muted" style="max-width:28em">Card, Apple Pay or Google Pay, on a secure Stripe page. Stripe emails your receipt. We listen, we build it, and it's ready right here on the site within 1 hour, with a buzz on your phone.</p>
+        <button class="btn bprem" type="submit" id="sendbtn"><span class="bword">Send it</span> <span id="paybtn-amount" hidden></span><span class="arr">↗</span></button>
+        <p class="muted" style="max-width:28em">No payment while we test. Your order lands in your space, and your email gets a note the moment it's ready.</p>
       </div>
     </div>
     <p class="status" id="status" aria-live="polite"></p>
@@ -333,6 +335,7 @@
   var form=document.getElementById('order'),list=document.getElementById('files'),count=document.getElementById('count'),status=document.getElementById('status'),btn=document.getElementById('sendbtn'),filesField=document.getElementById('files-field');
   var picked=[]; // {file, el, bar, key, link, done, err}
   var API='/api/upload';
+  var PAY_ON=false; /* plans and Stripe come back later */
   var preview = /claude/.test(location.hostname) || location.protocol==='file:';
   /* your space first: every order lands in an account */
   (function(){ if(new URL(location.href).searchParams.get('paid')) return;
@@ -526,12 +529,13 @@
       var failed=picked.filter(function(p){return p.err}).length;
       if(failed){ btn.disabled=false; var big=picked.filter(function(p){return p.tooBig}).length; status.textContent=big?(big+' file'+(big>1?'s are':' is')+' over 20 MB. Remove '+(big>1?'them':'it')+' and paste a Drive or WeTransfer link in "Just a link" instead.'):(failed+' file'+(failed>1?'s':'')+' did not upload. Tap Send again to retry, or email them to hello@samestudio.co.'); return; }
       status.textContent='Saving your order…';
-      if(preview){ remember(); setTimeout(function(){ btn.disabled=false; status.textContent=''; showThanks('Test order saved in this browser (nothing was charged; on the live site you would now pay '+planPrice()+' on Stripe). Close the tab, come back, the site remembers you.'); },500); return; }
+      if(preview){ remember(); setTimeout(function(){ btn.disabled=false; status.textContent=''; showThanks('Test order saved in this browser. Close the tab and come back: it lands in your space.'); },500); return; }
       var plan=(form.querySelector('input[name=plan]:checked')||{}).value, notes=((form.querySelector('textarea[name=notes]')||{value:''}).value||'').trim();
       remember({name:nm});
       /* the order is saved on our side first; payment comes after */
       return fetch('/api/order',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({k:orderKey,order:orderId,plan:plan,place:place,name:nm,email:email,kind:'idea',brief:brief,notes:notes,files:filesField.value})}).then(function(r){return r.json()}).then(function(o){
         if(!o||!o.ok){ btn.disabled=false; status.textContent=((o&&o.error)||'Could not save the order.')+' Email us at hello@samestudio.co and we\'ll take it from there.'; return; }
+        if(!PAY_ON){ btn.disabled=false; status.textContent=''; showThanks('Order '+orderId+' is in. We\u2019re on it: it lands in your space, and your email gets a note when it\u2019s ready.'); return; }
         if(o.skipPay){ btn.disabled=false; status.textContent=''; showThanks('Order '+orderId+' is in. You\u2019re the owner, so no payment. It lands in your space when it\u2019s done.'); return; }
         status.textContent='Taking you to the payment…';
         return fetch('/api/checkout',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({plan:plan,email:email,place:place,order:orderId,key:orderKey,page:'idea'})}).then(function(r){return r.json()}).then(function(j){

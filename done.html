@@ -85,7 +85,7 @@
     <label class="drop" style="margin-top:16px"><input type="file" id="media" multiple accept="image/*,video/*"><span class="d3" style="font-size:18px">Drop the finished photos and videos</span><span class="muted">They go to delivered/&lt;order key&gt;/ in your bucket</span></label>
     <div class="files" id="files"></div>
     <div class="row" style="margin-top:14px"><input type="text" id="dlink" placeholder="Or paste a Drive / WeTransfer link for big videos" style="flex:1;min-width:220px"><button class="btn ghost" id="dlink-save">Save link</button></div>
-    <div class="row" style="margin-top:18px"><button class="btn lime" id="ready">Mark as ready and buzz the phone ✓</button><button class="btn ghost" id="working">Back to "working"</button><a class="btn ghost" id="view" target="_blank" rel="noopener">Open the client page ↗</a></div>
+    <div class="row" style="margin-top:18px"><button class="btn" id="approve" hidden>Approve the credits ✓</button><button class="btn lime" id="ready">Mark as ready and buzz the phone ✓</button><button class="btn ghost" id="working">Back to "working"</button><a class="btn ghost" id="view" target="_blank" rel="noopener">Open the client page ↗</a></div>
     <p class="status" id="w-status" style="margin-top:10px"></p>
   </div>
 </div>
@@ -102,7 +102,7 @@
   function fmt(ms){ return ms?new Date(ms).toLocaleString([],{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}):''; }
   function row(o){
     var d=document.createElement('div'); d.className='o'+(sel&&sel.k===o.k?' on':'');
-    d.innerHTML='<div><div class="t">'+(o.place||'(no brand)')+' <span class="muted">· '+(o.plan||'')+'</span></div><div class="s">'+(o.order||'')+' · '+(o.name||'')+' '+(o.email||'')+' · sent '+fmt(o.created)+(o.paid?' · paid':' · not paid yet')+(o.subs?' · '+o.subs+' phone'+(o.subs>1?'s':'')+' waiting for the buzz':'')+'</div></div><span class="st '+(o.status==='ready'?'ready':'')+'">'+(o.status==='ready'?'READY':'WORKING')+'</span>';
+    d.innerHTML='<div><div class="t">'+(o.place||'(no brand)')+' <span class="muted">· '+(o.plan||'')+'</span></div><div class="s">'+(o.order||'')+' · '+(o.name||'')+' '+(o.email||'')+' · sent '+fmt(o.created)+(o.paid?' · paid':' · not paid yet')+(o.subs?' · '+o.subs+' phone'+(o.subs>1?'s':'')+' waiting for the buzz':'')+'</div></div><span class="st '+(o.status==='ready'?'ready':'')+'">'+(o.status==='ready'?'READY':String(o.stage||'working').toUpperCase())+(o.mediaCount?' · '+o.mediaCount+' photos':'')+(o.estimate?' · ~'+o.estimate+' cr':'')+'</span>';
     d.addEventListener('click',function(){ pick(o); });
     return d;
   }
@@ -112,6 +112,8 @@
     var b=[o.brief?'Brief: '+o.brief:'', o.files?'Files:\n'+o.files:''].filter(Boolean).join('\n\n'); $('w-brief').hidden=!b; $('w-brief').textContent=b;
     $('w-linkrow').hidden=!o.link; if(o.link){ $('w-link').href=/^https?:/i.test(o.link)?o.link:'https://'+o.link; $('w-linktxt').textContent=o.link; }
     $('dlink').value=o.deliveryLink||'';
+    $('approve').hidden=!(live&&(o.stage==='awaiting'||o.stage==='collected'||o.stage==='new')); $('approve').textContent=o.estimate?('Approve ~'+o.estimate+' credits ✓'):'Approve ✓';
+    if(o.note){ $('w-status').textContent='Robot: '+o.note; }
     $('view').href=Same.readyUrl(o.k); $('files').innerHTML=''; $('w-status').textContent='';
     load();
   }
@@ -161,10 +163,11 @@
     if(!live){ if(action==='ready') Same.demoReady(sel.k); else { var o=Same.get(sel.k); if(o){ delete o.demoReadyAt; o.created=Date.now(); Same.save(o); } } st.textContent=action==='ready'?'Demo order is ready. Open the client page or the site: the pill turns green.':'Demo order is back to working (2 min clock restarted).'; load(); return; }
     fetch('/api/done',{method:'POST',headers:hdr(),body:JSON.stringify({k:sel.k,action:action})}).then(function(r){return r.json()}).then(function(j){
       if(j.error){ st.textContent=j.error; return; }
-      st.textContent=action==='ready'?('Ready. '+j.files+' file'+(j.files===1?'':'s')+' on the client page. Buzzed '+j.sent+' phone'+(j.sent===1?'':'s')+'.'):'Back to working.'; load();
+      st.textContent=action==='approve'?'Approved. The robot starts on its next round.':action==='ready'?('Ready. '+j.files+' file'+(j.files===1?'':'s')+' in the client\u2019s space. Buzzed '+j.sent+', emailed: '+(j.mailed?'yes':'no')+'.'):'Back to working.'; load();
     }).catch(function(e){ st.textContent='No connection: '+e.message; });
   }
   $('ready').addEventListener('click',function(){ mark('ready'); });
+  $('approve').addEventListener('click',function(){ mark('approve'); });
   $('working').addEventListener('click',function(){ mark('working'); });
 
   function b64u(x){ var p='='.repeat((4-x.length%4)%4); var r=atob((x+p).replace(/-/g,'+').replace(/_/g,'/')); var a=new Uint8Array(r.length); for(var i=0;i<r.length;i++) a[i]=r.charCodeAt(i); return a; }

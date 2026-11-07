@@ -106,3 +106,14 @@ export async function deliveredFiles(orderKey) {
   }
   return out.sort((a, b) => a.name.localeCompare(b.name));
 }
+
+// store bytes we fetched ourselves (robot harvest, edited results) as a finished file
+export async function putFile(key, buf, name, type) {
+  const bytes = new Uint8Array(buf);
+  if (bytes.byteLength > BLOB_MAX) throw new Error(`${name} is over 20 MB`);
+  const parts = Math.max(1, Math.ceil(bytes.byteLength / PART));
+  const s = store();
+  for (let i = 0; i < parts; i++) await s.set(`p/${key}/${i}`, bytes.slice(i * PART, (i + 1) * PART).buffer);
+  await putJSON("f/" + key, { name, size: bytes.byteLength, type: type || "application/octet-stream", parts, done: true, at: Date.now() });
+  return key;
+}
