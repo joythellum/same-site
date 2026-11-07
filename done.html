@@ -121,9 +121,10 @@
   function load(){
     var list=$('list'); list.innerHTML='';
     if(live){
-      $('list-note').textContent='Live orders from your bucket.';
+      if(!secret){ $('list-note').textContent=adminSet?'Type your password above and tap Unlock to see the orders.':'Set your password above to see the orders.'; return; }
+      $('list-note').textContent='Live orders.';
       fetch('/api/done?list=1',{headers:hdr(),cache:'no-store'}).then(function(r){return r.json()}).then(function(j){
-        if(j.error){ $('list-note').textContent=j.error; return; }
+        if(j.error){ $('list-note').textContent=j.error==='Wrong password'?'That password is not right. Try again above.':j.error; return; }
         if(!j.list.length) $('list-note').textContent='No orders yet.';
         j.list.forEach(function(o){ list.appendChild(row(o)); });
       });
