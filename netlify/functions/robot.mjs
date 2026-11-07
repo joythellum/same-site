@@ -146,8 +146,8 @@ export default async (req) => {
       const k = url.searchParams.get("k"), t = url.searchParams.get("t");
       const rec = validKey(k) && (await getJSON(REC(k)));
       if (!rec || !rec.approveToken || rec.approveToken !== t) return page("Link not valid", "This approve link is old or wrong. Open your done page instead.");
-      if (rec.stage === "awaiting") { rec.stage = "approved"; rec.approvedAt = Date.now(); await putJSON(REC(k), rec); }
-      return page("Approved.", `${rec.media ? rec.media.length : 0} photos for ${rec.place || "this order"}. The robot starts on its next round, within about 15 minutes.`);
+      if (rec.status !== "ready" || url.searchParams.get("again")) { rec.status = "working"; rec.stage = "approved"; rec.approvedAt = Date.now(); rec.approvedBy = "email"; await putJSON(REC(k), rec); }
+      return page("Approved. Claude is on it.", `Order ${rec.order || ""} for ${rec.place || "this brand"}. Claude picks it up on its next round, within about 15 minutes, edits it in Higgsfield and puts it in the client's space. You get a ping when it's done.`);
     }
 
     if (path === "/api/robot/init" && req.method === "POST") {
@@ -185,7 +185,7 @@ export default async (req) => {
       out = await harvest(rec);
       if (out.done && rec.stage === "new") rec.stage = "collected";
     } else if (b.action === "ask") {
-      rec.stage = "awaiting"; rec.estimate = Number(b.credits) || 0; rec.approveToken = randomBytes(16).toString("hex");
+      rec.stage = "awaiting"; rec.estimate = Number(b.credits) || 0; rec.approveToken = rec.approveToken || randomBytes(16).toString("hex");
       const n = Number(b.photos) || (rec.media || []).length;
       const link = `${origin}/api/approve?k=${rec.k}&t=${rec.approveToken}`;
       await Promise.allSettled([

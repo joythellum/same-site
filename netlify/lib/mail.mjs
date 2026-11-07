@@ -39,12 +39,20 @@ export async function send({ to, subject, title, html, button, text }) {
 
 export function ownerEmail() { return process.env.OWNER_EMAIL || process.env.GMAIL_USER || ""; }
 
-export async function mailNewOrder(rec, origin) {
+export async function mailNewOrder(rec, origin, approveLink) {
   const rows = [
-    ["Order", rec.order], ["Plan", rec.plan], ["Brand", rec.place], ["From", `${rec.name} · ${rec.email}`],
+    ["Order", rec.order], ["Brand", rec.place], ["From", `${rec.name} · ${rec.email}`],
     ["Link", rec.link], ["Idea", rec.brief], ["Notes", rec.notes], ["Files", rec.files],
   ].filter(([, v]) => v).map(([k, v]) => `<b>${esc(k)}:</b> ${esc(v).replace(/\n/g, "<br>")}`).join("<br><br>");
-  return send({ to: ownerEmail(), subject: `New order · ${rec.place || rec.email} · ${rec.plan || ""}`, title: "New order. Clock is running.", html: rows, button: { label: "Open your done page", url: `${origin}/done.html` } });
+  return send({ to: ownerEmail(), subject: `New order · ${rec.place || rec.email}`, title: "New order. Run it?",
+    html: rows + `<br><br>Tap the button and Claude picks it up on its next round (within about 15 minutes), edits it in Higgsfield, puts it in ${esc(rec.name || "the client")}'s space and emails them.`,
+    button: approveLink ? { label: "Approve & run with Claude", url: approveLink } : { label: "Open your done page", url: `${origin}/done.html` } });
+}
+
+export async function mailOrderConfirm(rec, origin) {
+  return send({ to: rec.email, subject: `Order ${rec.order} is in · Same`, title: "It's in our hands.",
+    html: `${esc(rec.name ? rec.name + ", y" : "Y")}our order <b>${esc(rec.order)}</b> is in. We're on it. It lands in your space, and this inbox gets a note the moment it's ready.`,
+    button: { label: "Open your space", url: `${origin}/account.html` } });
 }
 
 export async function mailReadyToClient(rec, origin) {

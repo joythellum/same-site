@@ -11,7 +11,8 @@
 // Robot stages on an order: new → collected (photos grabbed) → awaiting (asked you) → approved → processing → ready
 
 import { currentUser, saveUser, getUser, normEmail } from "../lib/auth.mjs";
-import { mailNewOrder } from "../lib/mail.mjs";
+import { mailNewOrder, mailOrderConfirm } from "../lib/mail.mjs";
+import { randomBytes } from "node:crypto";
 import { pushKey, buzzOwner, markReady } from "../lib/notify.mjs";
 import { store, getJSON, putJSON, json, validKey, isAdmin, adminState, setAdmin, deliveredFiles, fileLink } from "../lib/r2.mjs";
 
@@ -61,12 +62,17 @@ export default async (req) => {
         k: b.k, order: cut(b.order, 40), plan: cut(b.plan, 60), place: cut(b.place, 200), name: cut(b.name, 120), email: cut(b.email, 200),
         link: cut(b.link, 1000), brief: cut(b.brief, 4000), notes: cut(b.notes, 2000), files: cut(b.files, 20000), kind: cut(b.kind || "order", 40),
         created, eta: created + etaMinutes(b.plan) * 60000, status: "working", stage: media.length ? "collected" : "new", media,
-        paid: owner, test: owner, subs: [],
+        paid: owner, test: owner, subs: [], approveToken: randomBytes(16).toString("hex"),
       };
       await putJSON(REC(b.k), rec);
       if (user) { user.orders = [b.k].concat((user.orders || []).filter((x) => x !== b.k)); if (!user.brand && b.place) user.brand = cut(b.place, 200); await saveUser(user); }
       const what = rec.link ? "a link" : media.length ? `${media.length} files` : rec.brief ? "an idea" : "an order";
-      await Promise.allSettled([buzzOwner("New order · " + (rec.place || "Same"), `${rec.name || "Someone"} sent ${what}. The robot is on it.`, `${origin}/done.html`), mailNewOrder(rec, origin)]);
+      const approveLink = `${origin}/api/approve?k=${rec.k}&t=${rec.approveToken}`;
+      await Promise.allSettled([
+        buzzOwner("New order · " + (rec.place || "Same"), `${rec.name || "Someone"} sent ${what}. Tap to approve and run.`, approveLink),
+        mailNewOrder(rec, origin, approveLink),
+        mailOrderConfirm(rec, origin),
+      ]);
       return json({ ok: true, k: b.k, skipPay: owner, account: !!user });
     }
 
