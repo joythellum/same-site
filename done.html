@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="theme-color" content="#f4e9e1" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#16130f" media="(prefers-color-scheme: dark)">
+<meta name="color-scheme" content="light dark">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Done · Same (you)</title>
+<meta name="robots" content="noindex">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,800&family=Figtree:wght@400;600;700&display=swap">
+<style>
+  [hidden]{display:none!important}
+  :root{--paper:#f4e9e1;--surface:#fff;--ink:#0d0d0d;--ink-soft:#4d4741; --daylight-soft:#ffe7a8; --on-color:#0d0d0d;--blue:#0072e3;--daylight:#ffb200;--coral:#ff5c38;--red:#ea3737;--lime:#1be349;--mist:#eef1f5;--on-ink:#f4e9e1;
+    --font-display:"Bricolage Grotesque","Arial Black",Arial,sans-serif;--font-sans:"Figtree","Helvetica Neue",Arial,sans-serif;--r-card:30px;--r-pill:100px;--gap:20px;
+    --gutter-l:max(16px, env(safe-area-inset-left, 0px));--gutter-r:max(16px, env(safe-area-inset-right, 0px));--ease-out:cubic-bezier(.19,1,.22,1);color-scheme:light}
+  /* same:dark */
+  :root{--on-color:#0d0d0d}
+  @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){ --paper:#16130f; --surface:#221e1a; --ink:#f4e9e1; --ink-soft:#c2b6aa; --line:rgba(244,233,225,.42); --blue:#2a84ea; --blue-ink:#7db5ff; --daylight:#f2a900; --daylight-soft:#4a3a12; --coral:#f25a37; --violet:#a85cf5; --lilac:#b48ff0; --red:#e03a3a; --orange:#f26200; --green:#0fa844; --lime:#22d94d; --mist:#2b2622; --dusk-ink:#c9d2db; --blue-dull:#8fa3b8; --on-ink:#16130f; color-scheme:dark; } }
+  :root[data-theme="dark"]{ --paper:#16130f; --surface:#221e1a; --ink:#f4e9e1; --ink-soft:#c2b6aa; --line:rgba(244,233,225,.42); --blue:#2a84ea; --blue-ink:#7db5ff; --daylight:#f2a900; --daylight-soft:#4a3a12; --coral:#f25a37; --violet:#a85cf5; --lilac:#b48ff0; --red:#e03a3a; --orange:#f26200; --green:#0fa844; --lime:#22d94d; --mist:#2b2622; --dusk-ink:#c9d2db; --blue-dull:#8fa3b8; --on-ink:#16130f; color-scheme:dark; }
+  .yellow,.coral,.violet,.orange,.green,.red,.lilac,.lime,.tile.c2,.tile.c3,.tile.c4,.pill.red,.pill.lime,.mosaic .cell .pill,.handle,.eta-ico,.ribbon,.pane.sky,.plan .tagx,.st,.drop.over,.same-island{--paper:#f4e9e1;--surface:#ffffff;--ink:#0d0d0d;--ink-soft:#4d4741;--line:#0d0d0d;--mist:#eef1f5;--on-ink:#f4e9e1;--dusk-ink:#3f4a55;color:var(--ink)}
+  .braind,.rail .braind-btn{--ink:#0d0d0d;--on-ink:#f4e9e1;background:#111114;color:#f4e9e1}
+  .btn.ghost{background:var(--surface);color:var(--ink)}
+  html{background:var(--paper)}
+  @media (prefers-reduced-motion: no-preference){ html{transition:background .4s ease} body{transition:background .4s ease,color .4s ease} }
+
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);font:400 16px/1.45 var(--font-sans);-webkit-font-smoothing:antialiased;padding:calc(12px + env(safe-area-inset-top,0px)) var(--gutter-r) 48px var(--gutter-l)}
+  h1,h2,h3,p{margin:0}
+  .wrap{max-width:900px;margin:0 auto;display:flex;flex-direction:column;gap:var(--gap)}
+  .topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:6px 0 10px}
+  .logo{text-decoration:none;color:var(--ink);font:800 24px/1 var(--font-display);letter-spacing:-.03em;display:flex;align-items:center;gap:6px}
+  .logo svg{width:22px;height:22px} .logo .room{fill:var(--blue)} .logo .seam{fill:var(--daylight)}
+  .pill{display:inline-flex;align-items:center;gap:8px;padding:8px 18px;border:1px solid var(--line);border-radius:var(--r-pill);font:600 14px/1.2 var(--font-sans);color:var(--ink);text-decoration:none;white-space:nowrap}
+  .pill.big{font:800 20px/1.1 var(--font-display);padding:12px 24px;background:var(--ink);color:var(--on-ink);border:0}
+  .card{border-radius:var(--r-card);padding:30px 25px;position:relative}
+  .card.line{border:1px solid var(--line)} .yellow{background:var(--daylight)} .white{background:var(--surface)}
+  .d1{font:800 clamp(32px,5vw,54px)/.98 var(--font-display);letter-spacing:-.02em} .d3{font:800 22px/1.05 var(--font-display)}
+  .body{font-size:15px;line-height:1.5} .muted{color:var(--ink-soft);font-size:13px;line-height:1.45}
+  .row{display:flex;flex-wrap:wrap;align-items:center;gap:12px}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;padding:14px 24px;border:0;border-radius:var(--r-pill);font:700 15px/1 var(--font-sans);color:var(--on-ink);background:var(--ink);cursor:pointer;text-decoration:none;white-space:nowrap}
+  .btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)} .btn.lime{background:var(--lime);color:var(--ink)} .btn:disabled{opacity:.5;cursor:wait}
+  input[type=password],input[type=text]{font:600 15px var(--font-sans);padding:13px 16px;border:1px solid var(--line);border-radius:14px;background:var(--surface);color:var(--ink);min-width:220px}
+  .list{display:flex;flex-direction:column;gap:10px;margin-top:16px}
+  .o{display:grid;grid-template-columns:1fr auto;gap:8px 16px;align-items:center;padding:16px 18px;border-radius:18px;background:var(--surface);cursor:pointer;border:2px solid transparent}
+  .o.on{border-color:var(--ink)} .o .t{font-weight:700} .o .s{font-size:13px;color:var(--ink-soft)}
+  .st{padding:4px 10px;border-radius:999px;font:700 11px/1 var(--font-sans);background:var(--daylight)} .st.ready{background:var(--lime)}
+  .drop{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;min-height:150px;padding:24px;border:2px dashed var(--line);border-radius:22px;background:var(--surface);text-align:center;cursor:pointer}
+  .drop input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+  .files{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:10px;margin-top:14px} .files:empty{display:none}
+  .file{position:relative;border-radius:14px;overflow:hidden;background:var(--mist);aspect-ratio:1;font:600 11px/1.2 var(--font-sans)} .file img,.file video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+  .file .nm{position:absolute;left:0;right:0;bottom:0;padding:5px 6px;background:rgba(13,13,13,.72);color:#fff;font-size:10.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .bar{position:absolute;left:0;right:0;bottom:0;height:5px;background:rgba(13,13,13,.18)} .bar i{display:block;height:100%;width:0;background:var(--daylight)} .file.done .bar i{background:var(--lime)} .file.err{outline:2px solid var(--red)}
+  .status{font-size:14px;min-height:1.3em}
+  pre{white-space:pre-wrap;font:13px/1.4 ui-monospace,Menlo,monospace;background:var(--mist);padding:12px 14px;border-radius:14px;margin:10px 0 0;max-height:220px;overflow:auto}
+  @media (max-width:640px){.card{padding:24px 18px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <a class="logo" href="index.html"><svg viewBox="0 0 44 44" aria-hidden="true"><path class="room" d="M4 18 22 4l18 14v22H4z"/><rect class="seam" x="21" y="6" width="2" height="34"/></svg>Same</a>
+    <span class="pill">Your side · not linked from the site</span>
+  </div>
+
+  <div class="card yellow">
+    <span class="pill big">Mark it done</span>
+    <h1 class="d1" style="margin-top:18px">Drop the finished files. Press Ready. The phone buzzes.</h1>
+    <div class="row" style="margin-top:18px" id="adminrow"><input type="password" id="secret" placeholder="Your admin secret (ADMIN_SECRET)"><button class="btn" id="unlock">Unlock</button><span class="status" id="admin-status"></span></div>
+  </div>
+
+  <div class="card line">
+    <div class="row" style="justify-content:space-between"><h2 class="d3">Orders</h2><button class="btn ghost" id="reload">Refresh</button></div>
+    <p class="muted" id="list-note" style="margin-top:6px"></p>
+    <div class="list" id="list"></div>
+  </div>
+
+  <div class="card white" id="work" hidden>
+    <h2 class="d3">Order <span id="w-order"></span></h2>
+    <p class="muted" id="w-meta" style="margin-top:6px"></p>
+    <div class="row" style="margin-top:12px" id="w-linkrow" hidden><a class="btn" id="w-link" target="_blank" rel="noopener">Open their link ↗</a><span class="muted" id="w-linktxt"></span></div>
+    <pre id="w-brief" hidden></pre>
+    <label class="drop" style="margin-top:16px"><input type="file" id="media" multiple accept="image/*,video/*"><span class="d3" style="font-size:18px">Drop the finished photos and videos</span><span class="muted">They go to delivered/&lt;order key&gt;/ in your bucket</span></label>
+    <div class="files" id="files"></div>
+    <div class="row" style="margin-top:18px"><button class="btn lime" id="ready">Mark as ready and buzz the phone ✓</button><button class="btn ghost" id="working">Back to "working"</button><a class="btn ghost" id="view" target="_blank" rel="noopener">Open the client page ↗</a></div>
+    <p class="status" id="w-status" style="margin-top:10px"></p>
+  </div>
+</div>
+
+<script src="same-orders.js"></script>
+<script>
+(function(){
+  var $=function(id){return document.getElementById(id)};
+  var live=false, secret='', sel=null;
+  try{ secret=localStorage.getItem('same.admin')||''; }catch(e){}
+  $('secret').value=secret;
+  function hdr(){ return {'content-type':'application/json','x-same-admin':secret}; }
+
+  function fmt(ms){ return ms?new Date(ms).toLocaleString([],{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}):''; }
+  function row(o){
+    var d=document.createElement('div'); d.className='o'+(sel&&sel.k===o.k?' on':'');
+    d.innerHTML='<div><div class="t">'+(o.place||'(no brand)')+' <span class="muted">· '+(o.plan||'')+'</span></div><div class="s">'+(o.order||'')+' · '+(o.name||'')+' '+(o.email||'')+' · sent '+fmt(o.created)+(o.paid?' · paid':' · not paid yet')+(o.subs?' · '+o.subs+' phone'+(o.subs>1?'s':'')+' waiting for the buzz':'')+'</div></div><span class="st '+(o.status==='ready'?'ready':'')+'">'+(o.status==='ready'?'READY':'WORKING')+'</span>';
+    d.addEventListener('click',function(){ pick(o); });
+    return d;
+  }
+  function pick(o){
+    sel=o; document.querySelectorAll('.o').forEach(function(x){x.classList.remove('on')});
+    $('work').hidden=false; $('w-order').textContent=o.order||o.k; $('w-meta').textContent='Key '+o.k+' · '+(o.plan||'')+' · '+(o.place||'')+(o.link?' · link: '+o.link:'');
+    var b=[o.brief?'Brief: '+o.brief:'', o.files?'Files:\n'+o.files:''].filter(Boolean).join('\n\n'); $('w-brief').hidden=!b; $('w-brief').textContent=b;
+    $('w-linkrow').hidden=!o.link; if(o.link){ $('w-link').href=/^https?:/i.test(o.link)?o.link:'https://'+o.link; $('w-linktxt').textContent=o.link; }
+    $('view').href=Same.readyUrl(o.k); $('files').innerHTML=''; $('w-status').textContent='';
+    load();
+  }
+  function load(){
+    var list=$('list'); list.innerHTML='';
+    if(live){
+      $('list-note').textContent='Live orders from your bucket.';
+      fetch('/api/done?list=1',{headers:hdr(),cache:'no-store'}).then(function(r){return r.json()}).then(function(j){
+        if(j.error){ $('list-note').textContent=j.error; return; }
+        if(!j.list.length) $('list-note').textContent='No orders yet.';
+        j.list.forEach(function(o){ list.appendChild(row(o)); });
+      });
+    } else {
+      $('list-note').textContent='Demo: these are the orders this browser sent (no pipe behind this page). "Ready" flips the demo order and the client page shows sample photos.';
+      var l=Same.list(); if(!l.length) $('list-note').textContent='Demo: no orders in this browser yet. Send one from order.html first.';
+      l.forEach(function(o){ list.appendChild(row({k:o.k,order:o.order,plan:o.plan,place:o.place,created:o.created,paid:true,status:o.demoReadyAt||Date.now()>=o.created+Same.DEMO_MS?'ready':'working'})); });
+    }
+  }
+  $('unlock').addEventListener('click',function(){ secret=$('secret').value.trim(); try{ localStorage.setItem('same.admin',secret); }catch(e){} $('admin-status').textContent=live?'Unlocked for this browser.':'Demo mode: no secret needed.'; load(); });
+  $('reload').addEventListener('click',load);
+
+  /* delivered files go through the same upload pipe, into delivered/<key>/ */
+  function put(url,blob,onp,tries){ tries=tries||0; return new Promise(function(res,rej){ var x=new XMLHttpRequest(); x.open('PUT',url,true); x.upload.onprogress=function(e){ if(e.lengthComputable&&onp) onp(e.loaded/e.total); }; x.onload=function(){ if(x.status>=200&&x.status<300) res(x.getResponseHeader('ETag')||''); else rej(new Error('HTTP '+x.status)); }; x.onerror=function(){ rej(new Error('network')); }; x.send(blob); }).catch(function(e){ if(tries<3) return put(url,blob,onp,tries+1); throw e; }); }
+  function api(p){ return fetch('/api/upload',{method:'POST',headers:hdr(),body:JSON.stringify(p)}).then(function(r){ return r.json().then(function(j){ if(!r.ok||j.error) throw new Error(j.error||('HTTP '+r.status)); return j; }); }); }
+  function tile(f){ var d=document.createElement('div'); d.className='file'; if(f.type.indexOf('image/')===0){ var im=document.createElement('img'); im.src=URL.createObjectURL(f); d.appendChild(im);} else if(f.type.indexOf('video/')===0){ var v=document.createElement('video'); v.src=URL.createObjectURL(f); v.muted=true; d.appendChild(v);} var nm=document.createElement('span'); nm.className='nm'; nm.textContent=f.name; d.appendChild(nm); var bar=document.createElement('span'); bar.className='bar'; var fill=document.createElement('i'); bar.appendChild(fill); d.appendChild(bar); $('files').appendChild(d); return {el:d,bar:fill}; }
+  function upload(f){
+    var t=tile(f);
+    if(!live){ return new Promise(function(res){ var k=0; var iv=setInterval(function(){ k+=.15; t.bar.style.width=Math.min(100,k*100)+'%'; if(k>=1){ clearInterval(iv); t.el.classList.add('done'); res(); } },100); }); }
+    return api({action:'start',name:f.name,size:f.size,type:f.type,deliver:sel.k}).then(function(st){
+      if(st.mode==='single') return put(st.url,f,function(r){ t.bar.style.width=(r*100)+'%'; });
+      var parts=[],done=0,chain=Promise.resolve();
+      st.urls.forEach(function(url,i){ chain=chain.then(function(){ var s=i*st.partSize,e=Math.min(f.size,s+st.partSize); return put(url,f.slice(s,e),function(r){ t.bar.style.width=((done+r*(e-s))/f.size*100)+'%'; }).then(function(etag){ done+=(e-s); parts.push({PartNumber:i+1,ETag:etag}); }); }); });
+      return chain.then(function(){ return api({action:'complete',key:st.key,uploadId:st.uploadId,parts:parts}); });
+    }).then(function(){ t.el.classList.add('done'); t.bar.style.width='100%'; }).catch(function(e){ t.el.classList.add('err'); $('w-status').textContent='Upload failed: '+e.message; });
+  }
+  $('media').addEventListener('change',function(){ if(!sel) return; var fs=$('media').files; for(var i=0;i<fs.length;i++) upload(fs[i]); $('media').value=''; });
+
+  function mark(action){
+    if(!sel) return; var st=$('w-status'); st.textContent='…';
+    if(!live){ if(action==='ready') Same.demoReady(sel.k); else { var o=Same.get(sel.k); if(o){ delete o.demoReadyAt; o.created=Date.now(); Same.save(o); } } st.textContent=action==='ready'?'Demo order is ready. Open the client page or the site: the pill turns green.':'Demo order is back to working (2 min clock restarted).'; load(); return; }
+    fetch('/api/done',{method:'POST',headers:hdr(),body:JSON.stringify({k:sel.k,action:action})}).then(function(r){return r.json()}).then(function(j){
+      if(j.error){ st.textContent=j.error; return; }
+      st.textContent=action==='ready'?('Ready. '+j.files+' file'+(j.files===1?'':'s')+' on the client page. Buzzed '+j.sent+' phone'+(j.sent===1?'':'s')+'.'):'Back to working.'; load();
+    }).catch(function(e){ st.textContent='No connection: '+e.message; });
+  }
+  $('ready').addEventListener('click',function(){ mark('ready'); });
+  $('working').addEventListener('click',function(){ mark('working'); });
+
+  Same.hasPipe().then(function(p){ live=p; var info=Same.pipeInfo(); if(live&&!info.admin) $('admin-status').textContent='ADMIN_SECRET is not set in Netlify yet.'; if(!live){ $('adminrow').hidden=true; } load(); });
+})();
+</script>
+</body>
+</html>

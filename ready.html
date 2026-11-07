@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="theme-color" content="#f4e9e1" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#16130f" media="(prefers-color-scheme: dark)">
+<meta name="color-scheme" content="light dark">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Your order · Same</title>
+<meta name="description" content="Your photos and videos from Same. No account, no password. This page remembers your order.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,800&family=Figtree:wght@400;600;700&display=swap">
+<style>
+  [hidden]{display:none!important}
+  :root{
+    --paper:#f4e9e1; --surface:#ffffff; --ink:#0d0d0d; --ink-soft:#4d4741; --line:#0d0d0d; --daylight-soft:#ffe7a8; --on-color:#0d0d0d;
+    --blue:#0072e3; --daylight:#ffb200; --coral:#ff5c38; --red:#ea3737; --lime:#1be349; --mist:#eef1f5; --on-ink:#f4e9e1;
+    --font-display:"Bricolage Grotesque","Arial Black",Arial,sans-serif;
+    --font-sans:"Figtree","Helvetica Neue",Arial,sans-serif;
+    --r-card:30px; --r-pill:100px; --gap:20px;
+    --gutter-l:max(16px, env(safe-area-inset-left, 0px)); --gutter-r:max(16px, env(safe-area-inset-right, 0px));
+    --ease-out:cubic-bezier(.19,1,.22,1);
+    color-scheme:light;
+  }
+  /* same:dark */
+  :root{--on-color:#0d0d0d}
+  @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){ --paper:#16130f; --surface:#221e1a; --ink:#f4e9e1; --ink-soft:#c2b6aa; --line:rgba(244,233,225,.42); --blue:#2a84ea; --blue-ink:#7db5ff; --daylight:#f2a900; --daylight-soft:#4a3a12; --coral:#f25a37; --violet:#a85cf5; --lilac:#b48ff0; --red:#e03a3a; --orange:#f26200; --green:#0fa844; --lime:#22d94d; --mist:#2b2622; --dusk-ink:#c9d2db; --blue-dull:#8fa3b8; --on-ink:#16130f; color-scheme:dark; } }
+  :root[data-theme="dark"]{ --paper:#16130f; --surface:#221e1a; --ink:#f4e9e1; --ink-soft:#c2b6aa; --line:rgba(244,233,225,.42); --blue:#2a84ea; --blue-ink:#7db5ff; --daylight:#f2a900; --daylight-soft:#4a3a12; --coral:#f25a37; --violet:#a85cf5; --lilac:#b48ff0; --red:#e03a3a; --orange:#f26200; --green:#0fa844; --lime:#22d94d; --mist:#2b2622; --dusk-ink:#c9d2db; --blue-dull:#8fa3b8; --on-ink:#16130f; color-scheme:dark; }
+  .yellow,.coral,.violet,.orange,.green,.red,.lilac,.lime,.tile.c2,.tile.c3,.tile.c4,.pill.red,.pill.lime,.mosaic .cell .pill,.handle,.eta-ico,.ribbon,.pane.sky,.plan .tagx,.st,.drop.over,.same-island{--paper:#f4e9e1;--surface:#ffffff;--ink:#0d0d0d;--ink-soft:#4d4741;--line:#0d0d0d;--mist:#eef1f5;--on-ink:#f4e9e1;--dusk-ink:#3f4a55;color:var(--ink)}
+  .braind,.rail .braind-btn{--ink:#0d0d0d;--on-ink:#f4e9e1;background:#111114;color:#f4e9e1}
+  .btn.ghost{background:var(--surface);color:var(--ink)}
+  html{background:var(--paper)}
+  @media (prefers-reduced-motion: no-preference){ html{transition:background .4s ease} body{transition:background .4s ease,color .4s ease} }
+
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);font:400 16px/1.45 var(--font-sans);-webkit-font-smoothing:antialiased;padding:calc(12px + env(safe-area-inset-top,0px)) var(--gutter-r) 48px var(--gutter-l)}
+  h1,h2,h3,p{margin:0}
+  .wrap{max-width:780px;margin:0 auto;display:flex;flex-direction:column;gap:var(--gap)}
+  .topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:6px 0 10px}
+  .logo{text-decoration:none;color:var(--ink);font:800 24px/1 var(--font-display);letter-spacing:-.03em;display:flex;align-items:center;gap:6px;white-space:nowrap}
+  .logo svg{width:22px;height:22px} .logo .room{fill:var(--blue)} .logo .seam{fill:var(--daylight)}
+  .pill{display:inline-flex;align-items:center;gap:8px;padding:8px 18px;border:1px solid var(--line);border-radius:var(--r-pill);font:600 14px/1.2 var(--font-sans);color:var(--ink);text-decoration:none;background:transparent;white-space:nowrap}
+  .pill.big{font:800 clamp(18px,1.6vw,22px)/1.1 var(--font-display);letter-spacing:-.01em;padding:12px 24px;background:var(--ink);color:var(--on-ink)}
+  .pill .d{width:10px;height:10px;border-radius:50%;background:var(--daylight);animation:pulse 1.6s ease-in-out infinite}
+  .pill.ready .d{background:var(--lime);animation:none;box-shadow:0 0 10px var(--lime)}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+  .card{border-radius:var(--r-card);padding:30px 25px;position:relative}
+  .card.line{border:1px solid var(--line)}
+  .yellow{background:var(--daylight)} .lime{background:var(--lime)} .coral{background:var(--coral)} .white{background:var(--surface)}
+  .d1{font:800 clamp(36px,6vw,64px)/.98 var(--font-display);letter-spacing:-.02em;text-wrap:balance}
+  .d3{font:800 clamp(22px,2.4vw,28px)/1.05 var(--font-display);letter-spacing:-.01em}
+  .body{font-size:15px;line-height:1.5}
+  .muted{color:var(--ink-soft);font-size:13px;line-height:1.45}
+  .row{display:flex;flex-wrap:wrap;align-items:center;gap:12px}
+  .btn{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:10px;padding:16px 28px;border:0;border-radius:var(--r-pill);font:700 16px/1 var(--font-sans);color:var(--on-ink);background:var(--ink);cursor:pointer;text-decoration:none;overflow:hidden;isolation:isolate;white-space:nowrap;transition:color .4s var(--ease-out),transform .4s var(--ease-out)}
+  .btn::before{content:"";position:absolute;inset:0;background:var(--daylight);transform:translateY(101%);transition:transform .5s var(--ease-out);z-index:-1;border-radius:inherit}
+  .btn:hover{color:var(--on-color);transform:translateY(-2px)} .btn:hover::before{transform:translateY(0)}
+  .btn:disabled{opacity:.6;cursor:wait;transform:none}
+  .btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)} .btn.ghost::before{background:var(--ink)} .btn.ghost:hover{color:var(--on-ink)}
+  .btn .arr{display:inline-block;transition:transform .4s var(--ease-out)} .btn:hover .arr{transform:translate(3px,-3px)}
+  .status{font-size:14px;min-height:1.3em}
+  .big-time{font:800 clamp(44px,8vw,84px)/.95 var(--font-display);letter-spacing:-.03em}
+  .gal{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-top:18px}
+  .gal a{position:relative;display:block;aspect-ratio:1;border-radius:16px;overflow:hidden;background:var(--mist);text-decoration:none;color:#fff}
+  .gal img,.gal video{width:100%;height:100%;object-fit:cover;display:block}
+  .gal .nm{position:absolute;left:0;right:0;bottom:0;padding:6px 8px;background:linear-gradient(transparent,rgba(13,13,13,.75));font:600 11px/1.2 var(--font-sans);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .gal .ic{position:absolute;top:8px;right:8px;width:30px;height:30px;border-radius:50%;background:rgba(13,13,13,.7);display:grid;place-items:center;font-weight:700}
+  .linkbox{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:12px}
+  .linkbox input{flex:1;min-width:200px;font:600 15px var(--font-sans);padding:14px 16px;border:1px solid var(--line);border-radius:14px;background:var(--surface);color:var(--ink)}
+  .qrwrap{display:flex;gap:22px;align-items:center;flex-wrap:wrap;margin-top:16px}
+  #qr{background:#fff;padding:12px;border-radius:18px;display:inline-block;line-height:0}
+  #qr img,#qr canvas{display:block;width:160px;height:160px}
+  .steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+  .steps li{display:flex;gap:14px;padding:12px 0;border-top:1px solid var(--line);font-size:15px}
+  .steps li:last-child{border-bottom:1px solid var(--line)}
+  .steps b{font-weight:700;flex:none;min-width:8em}
+  .fade{animation:up .9s var(--ease-out) both}
+  .fade:nth-child(2){animation-delay:.08s} .fade:nth-child(3){animation-delay:.16s} .fade:nth-child(4){animation-delay:.24s} .fade:nth-child(5){animation-delay:.32s}
+  @keyframes up{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
+  .tag{display:inline-block;padding:4px 10px;border-radius:999px;background:rgba(13,13,13,.1);font:700 11px/1 var(--font-sans);margin-left:8px;vertical-align:middle}
+  @media (max-width:640px){.card{padding:24px 18px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <a class="logo" href="index.html"><svg viewBox="0 0 44 44" aria-hidden="true"><path class="room" d="M4 18 22 4l18 14v22H4z"/><rect class="seam" x="21" y="6" width="2" height="34"/></svg>Same</a>
+    <a class="pill" href="index.html">← Back to the site</a>
+  </div>
+
+  <!-- no key on this phone -->
+  <section id="none" hidden>
+    <div class="card yellow fade">
+      <span class="pill big">No order here yet</span>
+      <h1 class="d1" style="margin-top:22px">This phone doesn't know an order.</h1>
+      <p class="body" style="margin-top:14px;max-width:34em">Orders live in the browser that sent them. If you sent one from another phone or computer, open your private link on this one, or scan its QR code. Nothing to log in to.</p>
+      <div class="row" style="margin-top:22px"><a class="btn" href="order.html">Send your media <span class="arr">↗</span></a></div>
+    </div>
+  </section>
+
+  <!-- in our hands -->
+  <section id="working" hidden style="display:flex;flex-direction:column;gap:var(--gap)">
+    <div class="card coral fade">
+      <span class="pill" id="w-pill"><span class="d"></span>In our hands</span>
+      <h1 class="d1" style="margin-top:22px">Ready by <span id="w-time">--:--</span>.</h1>
+      <p class="big-time" id="w-left" style="margin-top:10px">-- min</p>
+      <p class="body" style="margin-top:14px;max-width:34em">You can close this. Come back any time, this page remembers your order. <span id="w-demo" hidden><b>Demo clock:</b> on this test page an order is ready 2 minutes after you send it.</span></p>
+      <p class="muted" id="w-note" style="margin-top:10px" hidden></p>
+    </div>
+    <div class="card line fade">
+      <h2 class="d3">Tell me when it's ready</h2>
+      <p class="body" style="margin-top:8px;max-width:34em">One buzz on this phone the moment your photos land. No email needed.</p>
+      <div class="row" style="margin-top:16px"><button class="btn" id="alerts">Turn on the alert <span class="arr">↗</span></button><span class="status" id="alerts-status"></span></div>
+      <p class="muted" style="margin-top:14px" id="homescreen">Tip: add this page to your Home Screen (Share → Add to Home Screen) and Same opens like an app, straight to your order.</p>
+    </div>
+  </section>
+
+  <!-- ready -->
+  <section id="ready" hidden style="display:flex;flex-direction:column;gap:var(--gap)">
+    <div class="card lime fade">
+      <span class="pill ready"><span class="d"></span>Ready</span>
+      <h1 class="d1" style="margin-top:22px">Your photos are ready.</h1>
+      <p class="body" style="margin-top:14px;max-width:34em"><span id="r-count">0 files</span> · full quality · sized for every platform. <span id="r-demo" hidden><b>Demo:</b> these are sample photos from the site. On the live site this is your own work.</span></p>
+      <div class="row" style="margin-top:22px"><button class="btn" id="dl">Download all <span class="arr">↓</span></button><span class="status" id="dl-status"></span></div>
+      <div class="gal" id="gal"></div>
+    </div>
+    <div class="card line fade">
+      <h2 class="d3">Something off?</h2>
+      <p class="body" style="margin-top:8px;max-width:34em">Reply to your Stripe receipt, or write to <b>hello@samestudio.co</b> with your order number. We fix it, free. A real person answers.</p>
+    </div>
+  </section>
+
+  <!-- private link, both states -->
+  <section id="share" hidden>
+    <div class="card white fade">
+      <h2 class="d3">Open it on another phone</h2>
+      <p class="body" style="margin-top:8px;max-width:34em">This private link is your key. Anyone with it can see this order, so share it only with your own devices.</p>
+      <div class="linkbox"><input id="link" readonly><button class="btn ghost" id="copy">Copy</button></div>
+      <div class="qrwrap"><div id="qr"></div><p class="muted" style="max-width:22em">Scan with the other phone's camera. It opens this page with the key already inside.</p></div>
+      <p class="muted" style="margin-top:16px" id="meta"></p>
+    </div>
+  </section>
+</div>
+
+<script src="same-orders.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script>
+(function(){
+  var q=new URL(location.href).searchParams, k=q.get('k');
+  if(k && /^[a-z0-9]{12,40}$/i.test(k)){ Same.save({k:k}); }
+  else { var l=Same.latest(); k=l?l.k:null; }
+  var $=function(id){return document.getElementById(id)};
+  if(!k){ $('none').hidden=false; return; }
+  if(q.get('k')!==k){ history.replaceState(null,'',Same.readyUrl(k)); }
+
+  var cur=null, demo=false;
+  function paint(j){
+    cur=j; if(!j){ $('none').hidden=false; $('working').hidden=true; $('ready').hidden=true; $('share').hidden=true; return; }
+    demo=!!j.demo; $('share').hidden=false;
+    $('meta').textContent=(j.order?'Order '+j.order+' · ':'')+(j.plan||'')+(j.place?' · '+j.place:'');
+    if(j.status==='ready'){
+      $('working').hidden=true; $('ready').hidden=false; $('r-demo').hidden=!demo;
+      $('r-count').textContent=j.files.length+' file'+(j.files.length===1?'':'s');
+      var g=$('gal'); g.innerHTML='';
+      j.files.forEach(function(f){
+        var a=document.createElement('a'); a.href=f.url; a.target='_blank'; a.rel='noopener'; a.setAttribute('download',f.name);
+        var isV=/\.(mp4|mov|webm|m4v)$/i.test(f.name);
+        var m=document.createElement(isV?'video':'img'); m.src=f.view||f.url; if(isV){m.muted=true;m.playsInline=true;} else m.alt=f.name; m.loading='lazy';
+        a.appendChild(m); var n=document.createElement('span'); n.className='nm'; n.textContent=f.name; a.appendChild(n);
+        var ic=document.createElement('span'); ic.className='ic'; ic.textContent='↓'; a.appendChild(ic); g.appendChild(a);
+      });
+      document.title='Ready · Same';
+    } else {
+      $('ready').hidden=true; $('working').hidden=false; $('w-demo').hidden=!demo;
+      $('w-time').textContent=Same.fmtTime(j.readyAt);
+      var m=Same.minsLeft(j.readyAt); $('w-left').textContent=m>0?(m+' min'):'any moment';
+      if(j.note){ $('w-note').hidden=false; $('w-note').textContent=j.note; }
+      document.title='Ready by '+Same.fmtTime(j.readyAt)+' · Same';
+    }
+  }
+  var wasWorking=false;
+  function tick(){ Same.status(k).then(function(j){ var before=cur&&cur.status; paint(j); if(j&&j.status==='ready'&&before==='working'){ localBuzz(); } }); }
+  tick(); setInterval(tick,20000);
+
+  /* private link + QR */
+  var link=Same.readyUrl(k); $('link').value=link;
+  try{ new QRCode($('qr'),{text:link,width:160,height:160,correctLevel:QRCode.CorrectLevel.M}); }catch(e){}
+  $('copy').addEventListener('click',function(){ var i=$('link'); i.select(); var done=function(){ $('copy').textContent='Copied'; setTimeout(function(){$('copy').textContent='Copy'},1600); };
+    if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(link).then(done,function(){ try{document.execCommand('copy');done();}catch(e){} }); else { try{document.execCommand('copy');done();}catch(e){} } });
+
+  /* alerts: real push on the live site, a plain notification on the demo */
+  function b64(s){ var p='='.repeat((4-s.length%4)%4); var b=(s+p).replace(/-/g,'+').replace(/_/g,'/'); var r=atob(b); var a=new Uint8Array(r.length); for(var i=0;i<r.length;i++) a[i]=r.charCodeAt(i); return a; }
+  var alertsOn=false;
+  function localBuzz(){ try{ if(alertsOn&&'Notification' in window&&Notification.permission==='granted'){ var n=new Notification('Same',{body:'Your photos are ready. Tap to see them.',icon:'icon.png'}); n.onclick=function(){ window.focus(); }; } }catch(e){} }
+  $('alerts').addEventListener('click',function(){
+    var st=$('alerts-status'); st.textContent='…';
+    if(!('Notification' in window)){ st.textContent='This browser can\'t show alerts. Come back here any time; the page remembers you.'; return; }
+    Notification.requestPermission().then(function(p){
+      if(p!=='granted'){ st.textContent='Alerts stay off. Come back here any time, or keep the private link.'; return; }
+      alertsOn=true;
+      if(cur&&cur.vapid&&'serviceWorker' in navigator&&'PushManager' in window&&location.protocol==='https:'){
+        navigator.serviceWorker.register('sw.js').then(function(reg){ return navigator.serviceWorker.ready.then(function(){ return reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:b64(cur.vapid)}); }); })
+        .then(function(sub){ return fetch('/api/subscribe',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({k:k,sub:sub})}).then(function(r){return r.json()}); })
+        .then(function(j){ st.textContent=j.push?'Done. This phone buzzes the moment it\'s ready, even with the site closed.':'Saved. (Push keys are not set on the server yet, see SETUP.md.)'; $('alerts').textContent='Alert is on ✓'; })
+        .catch(function(e){ st.textContent='Could not set the push alert ('+(e.message||e)+'). Keep this page open and we\'ll still tell you here.'; });
+      } else {
+        st.textContent=demo?'Alert is on for this tab (demo). On the live site it buzzes even with the site closed.':'Alert is on while this page is open. For a buzz with the site closed, add it to your Home Screen.';
+        $('alerts').textContent='Alert is on ✓';
+      }
+    });
+  });
+
+  /* download all: one zip built right here in the browser */
+  $('dl').addEventListener('click',function(){
+    if(!cur||!cur.files.length) return;
+    var st=$('dl-status'), btn=$('dl'); btn.disabled=true; st.textContent='Packing 0 / '+cur.files.length+'…';
+    var zip=new JSZip(), n=0;
+    Promise.all(cur.files.map(function(f){ return fetch(f.url).then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.blob(); }).then(function(b){ zip.file(f.name,b); n++; st.textContent='Packing '+n+' / '+cur.files.length+'…'; }); }))
+    .then(function(){ return zip.generateAsync({type:'blob'}); })
+    .then(function(blob){ var a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='Same-'+(cur.order||k)+'.zip'; document.body.appendChild(a); a.click(); setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); },4000); st.textContent='Saved as one zip.'; btn.disabled=false; })
+    .catch(function(){ st.textContent='Zip did not work here, so tap each photo to save it one by one.'; btn.disabled=false; });
+  });
+})();
+</script>
+</body>
+</html>

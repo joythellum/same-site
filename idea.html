@@ -1,0 +1,530 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="theme-color" content="#0b0b10">
+<meta name="color-scheme" content="dark">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Braind · Same</title>
+<meta name="description" content="Drop your photos or videos. Same edits them and sends them back into your inbox within 1 hour of confirmation.">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,800&family=Figtree:wght@400;600;700&display=swap">
+<style>
+  /* Same · order page. Same tokens as the landing: warm paper, 30px cards, black pills, Bricolage + Figtree. One column, three steps, one button. */
+  [hidden]{display:none!important}
+  :root{
+    --paper:#f4e9e1; --surface:#ffffff; --ink:#0d0d0d; --ink-soft:#4d4741;
+    --blue:#0072e3; --daylight:#ffb200; --coral:#ff5c38; --violet:#ab54f7; --red:#ea3737; --orange:#ff6100; --lime:#1be349; --mist:#eef1f5; --on-ink:#f4e9e1;
+    --font-display:"Bricolage Grotesque","Arial Black",Arial,sans-serif;
+    --font-sans:"Figtree","Helvetica Neue",Arial,sans-serif;
+    --r-card:30px; --r-pill:100px; --gap:20px;
+    --gutter-l:max(16px, env(safe-area-inset-left, 0px)); --gutter-r:max(16px, env(safe-area-inset-right, 0px));
+    --ease-out:cubic-bezier(.19,1,.22,1);
+    color-scheme:dark;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);font:400 16px/1.45 var(--font-sans);-webkit-font-smoothing:antialiased;padding:calc(12px + env(safe-area-inset-top,0px)) var(--gutter-r) 40px var(--gutter-l)}
+  h1,h2,h3,p{margin:0}
+  .wrap{max-width:780px;margin:0 auto;display:flex;flex-direction:column;gap:var(--gap)}
+  .topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:6px 0 10px}
+  .logo{text-decoration:none;color:var(--ink);font:800 24px/1 var(--font-display);letter-spacing:-.03em;display:flex;align-items:center;gap:6px;white-space:nowrap}
+  .logo svg{width:22px;height:22px} .logo .room{fill:var(--blue)} .logo .seam{fill:var(--daylight)}
+  .pill{display:inline-flex;align-items:center;gap:8px;padding:8px 18px;border:1px solid var(--ink);border-radius:var(--r-pill);font:600 14px/1.2 var(--font-sans);color:var(--ink);text-decoration:none;background:transparent;white-space:nowrap}
+  .pill.fill{background:var(--ink);color:var(--on-ink)}
+  .pill.big{font:800 clamp(18px,1.6vw,22px)/1.1 var(--font-display);letter-spacing:-.01em;padding:12px 24px;background:var(--ink);color:var(--on-ink)}
+  .card{border-radius:var(--r-card);padding:30px 25px;position:relative}
+  .card.line{border:1px solid var(--ink)}
+  .yellow{background:var(--daylight)} .lime{background:var(--lime)} .coral{background:var(--coral)}
+  .d1{font:800 clamp(36px,6vw,64px)/.98 var(--font-display);letter-spacing:-.02em;text-wrap:balance}
+  .d3{font:800 clamp(22px,2.4vw,28px)/1.05 var(--font-display);letter-spacing:-.01em}
+  .sub{font:700 16px/1.3 var(--font-sans)}
+  .body{font-size:15px;line-height:1.5}
+  .muted{color:var(--ink-soft);font-size:13px;line-height:1.45}
+  .stack{display:flex;flex-direction:column;gap:14px}
+  .step{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+  /* Braind identity */
+  .bword{font:800 1em/1 var(--font-display);letter-spacing:-.03em;background:linear-gradient(100deg,#ffb200,#ff5c38,#ab54f7,#0072e3,#1be349,#ffb200);background-size:300% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:chrome 7s linear infinite;display:inline-block}
+  @keyframes chrome{to{background-position:300% 0}}
+  .bhero{background:var(--ink);color:var(--on-ink);position:relative;overflow:hidden}
+  .bhero::before{content:"";position:absolute;left:50%;top:50%;width:260%;aspect-ratio:1;margin:-130% 0 0 -130%;border-radius:50%;background:conic-gradient(from 0deg,rgba(171,84,247,.45),rgba(0,114,227,.4),rgba(27,227,73,.22),rgba(255,178,0,.42),rgba(255,92,56,.4),rgba(171,84,247,.45));animation:orbit 16s linear infinite;pointer-events:none}
+  .bhero::after{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 35% 50%,rgba(13,13,13,.92) 0%,rgba(13,13,13,.78) 45%,rgba(13,13,13,.35) 100%);pointer-events:none}
+  .bhero > *{position:relative;z-index:1}
+  .btn.bprem{border:3px solid transparent;color:var(--ink);background:linear-gradient(var(--paper),var(--paper)) padding-box,linear-gradient(100deg,#ffb200,#ff5c38,#ab54f7,#0072e3,#1be349,#ffb200) border-box;background-size:auto,300% 100%;animation:chrome 7s linear infinite}
+  .btn.bprem::before{display:none}
+  .btn.bprem:hover{color:var(--ink);transform:translateY(-2px) scale(1.02)}
+  .btn.bprem .bword{font-size:1.05em;font-weight:800}
+  .btn.bprem .arr{color:var(--ink)}
+  @keyframes orbit{to{transform:rotate(360deg)}}
+  .bhero .d1,.bhero .body{color:var(--on-ink)} .bhero .body{opacity:.88}
+  .bhead{display:flex;align-items:center;gap:12px}
+  .bmark{width:52px;height:52px;flex:none;animation:spin 18s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .bhead .bword{font-size:38px}
+  .bby{font:600 11px/1 var(--font-sans);letter-spacing:.12em;text-transform:uppercase;color:var(--on-ink);opacity:.7;margin-left:4px}
+  .orbwrap{display:flex;flex-direction:column;align-items:center;gap:16px;padding:10px 0 4px;text-align:center}
+  .orb{width:150px;height:150px;border-radius:50%;border:0;padding:4px;cursor:pointer;background:linear-gradient(100deg,#ffb200,#ff5c38,#ab54f7,#0072e3,#1be349,#ffb200);background-size:300% 100%;animation:chrome 7s linear infinite;transition:transform .4s var(--ease-out);position:relative}
+  .orb:hover{transform:scale(1.04)}
+  .orb-in{display:grid;place-items:center;width:100%;height:100%;border-radius:50%;background:#111114;color:var(--on-ink)}
+  .orb .mic{width:54px;height:54px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+  .orb .orb-num{font:800 64px/1 var(--font-display);letter-spacing:-.04em}
+  .orb .orb-stop{width:44px;height:44px;border-radius:8px;background:var(--red)}
+  .orb.counting .orb-in{background:#1a1a22}
+  .orb.rec{animation:chrome 7s linear infinite,pulse 1.4s ease-in-out infinite}
+  @keyframes pulse{50%{box-shadow:0 0 0 18px rgba(234,55,55,.18)}}
+  .orb-hint{font-size:14px;color:rgba(244,233,225,.78);max-width:30em;margin:0}
+  #prev-video,#play-video{width:100%;max-width:460px;border-radius:18px;background:#000;aspect-ratio:4/3;object-fit:cover}
+  #play-voice{width:100%;max-width:420px}
+  .drop.small{min-height:110px;padding:18px}
+  .orbwrap.row{flex-direction:row;text-align:left;align-items:center;gap:18px;padding:14px 0 0}
+  .orb.small{width:96px;height:96px;flex:none} .orb.small .mic{width:34px;height:34px} .orb.small .orb-num{font-size:40px} .orb.small .orb-stop{width:28px;height:28px}
+  .refs-why{margin-top:14px}
+  .donerow{display:flex;justify-content:space-between;align-items:center;gap:14px;margin-top:18px;flex-wrap:wrap}
+  .donerow .muted{flex:1;min-width:12em}
+  @media (max-width:520px){.orbwrap.row{flex-direction:column;text-align:center}}
+  .talk{display:flex;flex-direction:column;gap:12px}
+  .recrow{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  .recrow .btn .dot{width:10px;height:10px;border-radius:50%;background:var(--red);display:inline-block;margin-right:8px}
+  .recrow .btn.rec{background:var(--red);color:#fff;border-color:var(--red)} .recrow .btn.rec .dot{background:#fff;animation:blink 1s infinite}
+  @keyframes blink{50%{opacity:.2}}
+  .rtime{font:800 18px var(--font-display);letter-spacing:-.02em}
+  #rec-preview,#rec-playv{width:100%;max-width:420px;border-radius:18px;background:#000;aspect-ratio:4/3;object-fit:cover}
+  #rec-play{width:100%;max-width:420px}
+  .ways{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+  .way{border:1px solid var(--ink);background:transparent;color:var(--ink);border-radius:999px;padding:10px 16px;font:700 14px var(--font-sans);cursor:pointer;transition:background .25s,color .25s,transform .25s}
+  .way:hover{transform:translateY(-1px)}
+  .way.on{background:var(--ink);color:var(--on-ink)}
+  .pane.sky{background:#cfe4ff;border-radius:22px;padding:22px 20px;display:flex;flex-direction:column;gap:10px}
+  .pane.sky .big{font:800 20px/1.15 var(--font-display);letter-spacing:-.02em;margin:0}
+  .pane.sky .muted{margin:0}
+  .pane.sky .f{margin-top:6px}
+  .step .n{width:34px;height:34px;border-radius:50%;background:var(--ink);color:var(--on-ink);display:grid;place-items:center;font:800 15px var(--font-display);flex:none}
+
+  /* plans */
+  .plans{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+  .plan{position:relative;display:flex;flex-direction:column;gap:6px;padding:16px 16px 14px;border-radius:18px;background:var(--surface);border:2px solid transparent;cursor:pointer;transition:border-color .3s var(--ease-out),transform .3s var(--ease-out)}
+  .plan input{position:absolute;opacity:0;inset:0;margin:0;cursor:pointer}
+  .plan .price{font:800 28px/1 var(--font-display);letter-spacing:-.02em}
+  .plan .name{font:700 14px/1.2 var(--font-sans)}
+  .plan .what{font-size:12.5px;line-height:1.35;color:var(--ink-soft)}
+  .plan:has(input:checked){border-color:var(--ink);transform:translateY(-2px)}
+  .plan:has(input:focus-visible){outline:3px solid var(--ink);outline-offset:2px}
+  .plan .tagx{position:absolute;top:-10px;right:12px;padding:4px 10px;border-radius:var(--r-pill);background:var(--lime);font:700 11px/1 var(--font-sans)}
+
+  .bar{position:absolute;left:0;right:0;bottom:0;height:5px;background:rgba(13,13,13,.18)}
+  .bar i{display:block;height:100%;width:0;background:var(--daylight);transition:width .3s linear}
+  .file.done .bar i{background:var(--lime)}
+  .file.err{outline:2px solid var(--red)}
+  /* drop zone */
+  .drop{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;min-height:190px;padding:28px 20px;border:2px dashed var(--ink);border-radius:22px;background:var(--surface);text-align:center;cursor:pointer;transition:background .3s var(--ease-out),transform .3s var(--ease-out)}
+  .drop.over{background:#ffe7a8;transform:scale(1.01)}
+  .drop input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+  .drop svg{width:40px;height:40px;fill:none;stroke:var(--ink);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+  .drop .big{font:800 20px/1.1 var(--font-display)}
+  .files{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:10px;margin-top:14px}
+  .files:empty{display:none}
+  .file{position:relative;border-radius:14px;overflow:hidden;background:var(--mist);aspect-ratio:1;display:grid;place-items:center;font:600 11px/1.2 var(--font-sans);color:var(--ink-soft);text-align:center;padding:6px}
+  .file img,.file video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+  .file .nm{position:absolute;left:0;right:0;bottom:0;padding:5px 6px;background:rgba(13,13,13,.72);color:#fff;font-size:10.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .count{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-top:12px;font-size:13px}
+  .count b{font-weight:700}
+  .warn{color:var(--red);font-weight:600;font-size:13px}
+
+  /* fields */
+  label.f{display:flex;flex-direction:column;gap:6px;font:700 13px/1.2 var(--font-sans)}
+  label.f input,label.f textarea{font:400 16px var(--font-sans);padding:14px 16px;border:1px solid var(--ink);border-radius:14px;background:var(--surface);color:var(--ink);width:100%}
+  label.f textarea{min-height:90px;resize:vertical}
+  label.f input:focus-visible,label.f textarea:focus-visible{outline:3px solid var(--daylight);outline-offset:2px}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+  /* button */
+  .btn{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:10px;padding:18px 32px;border:0;border-radius:var(--r-pill);font:700 17px/1 var(--font-sans);color:var(--on-ink);background:var(--ink);cursor:pointer;text-decoration:none;overflow:hidden;isolation:isolate;white-space:nowrap;transition:color .4s var(--ease-out),transform .4s var(--ease-out)}
+  .btn::before{content:"";position:absolute;inset:0;background:var(--daylight);transform:translateY(101%);transition:transform .5s var(--ease-out);z-index:-1;border-radius:inherit}
+  .btn:hover{color:var(--ink);transform:translateY(-2px)} .btn:hover::before{transform:translateY(0)}
+  .btn:disabled{opacity:.6;cursor:wait;transform:none}
+  .btn .arr{display:inline-block;transition:transform .4s var(--ease-out)} .btn:hover .arr{transform:translate(3px,-3px)}
+  .send{display:flex;flex-wrap:wrap;align-items:center;gap:16px}
+  .status{font-size:14px;min-height:1.3em}
+
+  /* thanks */
+  .thanks{display:none}
+  .thanks.on{display:flex;flex-direction:column;gap:var(--gap)}
+  .form.off{display:none}
+  .timeline{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+  .timeline li{display:flex;gap:14px;padding:12px 0;border-top:1px solid var(--ink);font-size:15px}
+  .timeline li:last-child{border-bottom:1px solid var(--ink)}
+  .timeline b{font-weight:700;flex:none;min-width:9em}
+  .fade{animation:up .9s var(--ease-out) both}
+  .fade:nth-child(2){animation-delay:.08s} .fade:nth-child(3){animation-delay:.16s} .fade:nth-child(4){animation-delay:.24s} .fade:nth-child(5){animation-delay:.32s}
+  @keyframes up{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
+  @media (max-width:640px){.plans{grid-template-columns:1fr}.two{grid-template-columns:1fr}.card{padding:24px 18px}}
+
+  /* ===== Braind space: dark, the rainbow turning behind everything, glass on top ===== */
+  body{background:#070709;color:var(--on-ink);position:relative;isolation:isolate}
+  .sky-bg{position:fixed;inset:0;z-index:-2;overflow:hidden;background:#070709;pointer-events:none}
+  .sky-bg::before{content:"";position:absolute;left:50%;top:50%;width:190vmax;height:190vmax;margin:-95vmax 0 0 -95vmax;border-radius:50%;background:conic-gradient(from 0deg,rgba(171,84,247,.75),rgba(0,114,227,.7),rgba(27,227,73,.4),rgba(255,178,0,.7),rgba(255,92,56,.7),rgba(171,84,247,.75));animation:orbit 26s linear infinite;will-change:transform}
+  .sky-bg::after{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 50% 30%,rgba(7,7,9,.25) 0%,rgba(7,7,9,.55) 50%,rgba(7,7,9,.8) 100%)}
+  .logo{color:var(--on-ink)} .logo .room{fill:#fff}
+  .pill{border-color:rgba(244,233,225,.45);color:var(--on-ink)}
+  .pill.big{background:var(--on-ink);color:var(--ink)}
+  .card{background:rgba(10,10,12,.55);border:1px solid rgba(244,233,225,.2);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);color:var(--on-ink)}
+  .card.line{border-color:rgba(244,233,225,.22)}
+  .card.yellow,.card.lime,.card.coral,.card.violet{background:rgba(10,10,12,.55)}
+  .card.bhero{background:rgba(13,13,13,.55);border-color:rgba(244,233,225,.22)}
+  .bhero::before{display:none} .bhero::after{display:none}
+  .step .n{background:var(--on-ink);color:var(--ink)}
+  .d1,.d2,.d3,h1,h2,h3{color:var(--on-ink)}
+  .muted{color:rgba(244,233,225,.68)} .body{color:var(--on-ink)}
+  .plan{background:rgba(0,0,0,.35);border:2px solid rgba(244,233,225,.18);color:var(--on-ink)}
+  .plan:hover{border-color:rgba(244,233,225,.5)}
+  .plan:has(input:checked){border-color:transparent;background:linear-gradient(#111114,#111114) padding-box,linear-gradient(100deg,#ffb200,#ff5c38,#ab54f7,#0072e3,#1be349) border-box}
+  .plan .what{color:rgba(244,233,225,.7)}
+  .plan .tagx{background:var(--lime);color:var(--ink)}
+  .drop{background:rgba(0,0,0,.3);border-color:rgba(244,233,225,.45);color:var(--on-ink)}
+  .drop:hover,.drop.over{background:rgba(255,255,255,.08)}
+  .drop svg{stroke:var(--on-ink)}
+  .file{background:rgba(255,255,255,.08);color:rgba(244,233,225,.75)}
+  label.f{color:var(--on-ink)}
+  label.f input,label.f textarea{background:rgba(0,0,0,.35);border-color:rgba(244,233,225,.3);color:var(--on-ink)}
+  label.f input::placeholder,label.f textarea::placeholder{color:rgba(244,233,225,.45)}
+  label.f input:focus,label.f textarea:focus{outline:none;border-color:#ab54f7;box-shadow:0 0 0 3px rgba(171,84,247,.3)}
+  .btn.ghost{background:rgba(255,255,255,.08);color:var(--on-ink);border:1px solid rgba(244,233,225,.6)}
+  .btn.ghost:hover{color:var(--ink)}
+  .timeline li{border-color:rgba(244,233,225,.25)}
+  .pane.sky{background:rgba(207,228,255,.12)}
+  .send .muted{color:rgba(244,233,225,.7)}
+  ::selection{background:#ab54f7;color:#fff}
+</style>
+</head>
+<body>
+<div class="sky-bg" aria-hidden="true"></div>
+<div class="wrap">
+  <div class="topbar">
+    <a class="logo" href="index.html"><svg viewBox="0 0 44 44" aria-hidden="true"><path class="room" d="M4 18 22 4l18 14v22H4z"/><rect class="seam" x="21" y="6" width="2" height="34"/></svg>Same</a>
+    <a class="pill" href="index.html">← Back to the site</a>
+  </div>
+
+  <!-- the order form -->
+  <form class="form stack fade" id="order" name="idea" method="POST" action="/idea.html" data-netlify="true" netlify-honeypot="bot-field" autocomplete="on" style="gap:var(--gap)">
+    <input type="hidden" name="form-name" value="idea">
+    <input type="hidden" name="kind" value="brand idea">
+    <input type="hidden" name="files" id="files-field" value="">
+    <input type="hidden" name="order" id="order-field" value="">
+    <input type="hidden" name="key" id="key-field" value="">
+    <p style="display:none"><label>Leave this empty: <input name="bot-field"></label></p>
+
+    <div class="card bhero fade">
+      <div class="bhead"><svg class="bmark" viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="bg1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ab54f7"/><stop offset=".5" stop-color="#0072e3"/><stop offset="1" stop-color="#ffb200"/></linearGradient></defs><g fill="none" stroke="url(#bg1)" stroke-width="2.4" stroke-linecap="round"><ellipse cx="32" cy="32" rx="28" ry="11"/><ellipse cx="32" cy="32" rx="28" ry="11" transform="rotate(60 32 32)"/><ellipse cx="32" cy="32" rx="28" ry="11" transform="rotate(-60 32 32)"/></g><path d="M23 30 32 23l9 7v11H23z" fill="url(#bg1)"/><rect x="31.2" y="24" width="1.6" height="17" fill="#f4e9e1"/><circle cx="32" cy="4" r="2.2" fill="#ffb200"/><circle cx="56" cy="46" r="2.2" fill="#ab54f7"/><circle cx="8" cy="46" r="2.2" fill="#0072e3"/></svg><span class="bword">Braind</span><span class="bby">by Same · new</span></div>
+      <h1 class="d1" style="margin-top:22px">Your brain idea.<br>Same as in your head.</h1>
+      <p class="body" style="margin-top:14px;max-width:36em">You already know how your brand should look. Talk to us the way you'd talk to a friend: what it is, who it's for, the feeling, the colors, the light, what inspires you and why. Repeat yourself, go off track, it doesn't matter. The more you, the closer we get.</p>
+    </div>
+
+    <div class="card yellow fade">
+      <div class="step"><span class="n">1</span><h2 class="d3">Pick a plan</h2></div>
+      <div class="plans">
+        <label class="plan"><input type="radio" name="plan" value="Everything $500"><span class="tagx">Most complete</span><span class="price">$500</span><span class="name">Everything</span><span class="what">Up to 100 photos in 30 min, 6 clips, preview, audit, WhatsApp line</span></label>
+        <label class="plan"><input type="radio" name="plan" value="The Set+ $350" checked><span class="tagx">Most chosen</span><span class="price">$350</span><span class="name">The Set+</span><span class="what">Up to 40 photos in 1 hour, 3 clips, preview, your look saved</span></label>
+        <label class="plan"><input type="radio" name="plan" value="The Set $100"><span class="price">$100</span><span class="name">The Set</span><span class="what">Up to 15 photos in 1 hour, sized for every platform</span></label>
+      </div>
+    </div>
+
+    <div class="card line fade" id="step2">
+      <div class="step"><span class="n">2</span><h2 class="d3">Express yourself as you want</h2></div>
+      <div class="ways" role="tablist" aria-label="How to tell us">
+        <button type="button" class="way on" data-way="voice">Record my voice</button>
+        <button type="button" class="way" data-way="video">Record a video of me</button>
+        <button type="button" class="way" data-way="refs">References</button>
+        <button type="button" class="way" data-way="text">Text your idea</button>
+      </div>
+
+      <div class="pane" data-pane="voice">
+        <div class="orbwrap">
+          <button type="button" class="orb" id="orb-voice" aria-label="Record"><span class="orb-in"><svg viewBox="0 0 24 24" class="mic"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg><span class="orb-num" hidden></span><span class="orb-stop" hidden></span></span></button>
+          <p class="orb-hint" id="hint-voice">Tap the circle. You get 5 seconds to get ready, then just talk. As long as you want. Tap again to stop.</p>
+          <audio id="play-voice" controls hidden></audio>
+        </div>
+        <p class="muted" style="margin-top:14px">Already have a ready-made voice memo? Drop it here.</p>
+        <div class="drop small" data-drop><input type="file" class="media-in" multiple accept="audio/*"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg><span class="big">Drop a ready-made voice memo</span></div>
+      </div>
+
+      <div class="pane" data-pane="video" hidden>
+        <div class="orbwrap">
+          <video id="prev-video" playsinline muted hidden></video>
+          <video id="play-video" controls playsinline hidden></video>
+          <button type="button" class="orb" id="orb-video" aria-label="Record video"><span class="orb-in"><svg viewBox="0 0 24 24" class="mic"><rect x="3" y="6" width="13" height="12" rx="2"/><path d="M16 10l5-3v10l-5-3z"/></svg><span class="orb-num" hidden></span><span class="orb-stop" hidden></span></span></button>
+          <p class="orb-hint" id="hint-video">Tap the circle. 5 seconds to get ready, then talk to the camera. Tap again to stop.</p>
+        </div>
+        <p class="muted" style="margin-top:14px">Already filmed yourself with your phone? Drop the video here.</p>
+        <div class="drop small" data-drop><input type="file" class="media-in" multiple accept="video/*"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg><span class="big">Drop a video of yourself</span></div>
+      </div>
+
+      <div class="pane" data-pane="refs" hidden>
+        <p class="orb-hint" style="margin-bottom:12px">Brands you love, photos, screenshots, videos, music, anything that shows the feeling you're after. Any size.</p>
+        <div class="drop" data-drop>
+          <input type="file" class="media-in" multiple>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg>
+          <span class="big">Drop your references here</span>
+          <span class="muted">Photos, videos, audio, music, PDFs. As many as you want.</span>
+        </div>
+        <div class="refs-why">
+          <div class="orbwrap row">
+            <button type="button" class="orb small" id="orb-refs" aria-label="Record"><span class="orb-in"><svg viewBox="0 0 24 24" class="mic"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg><span class="orb-num" hidden></span><span class="orb-stop" hidden></span></span></button>
+            <div>
+              <p class="orb-hint" id="hint-refs"><strong>Tell us why.</strong> Why these, what you love in them, what to keep and what to skip. Tap the circle and talk.</p>
+              <audio id="play-refs" controls hidden></audio>
+            </div>
+          </div>
+          <label class="f" style="margin-top:10px">Or type it (optional)<textarea name="refs_notes" placeholder="Why these references, what you like in each one, what to avoid."></textarea></label>
+        </div>
+      </div>
+
+      <div class="pane" data-pane="text" hidden>
+        <label class="f">Your idea, in your words<textarea name="brief" placeholder="What you do, who it's for, the feeling you want. Colors, light, mood, brands you love, and why."></textarea></label>
+      </div>
+
+      <div class="files" id="files"></div>
+      <div class="count" id="count"></div>
+      <div class="donerow"><span class="muted" id="done-sum"></span><button type="button" class="btn bprem" id="done2"><span class="bword">Done</span> <span class="arr">↓</span></button></div>
+    </div>
+
+    <div class="card line fade">
+      <div class="step"><span class="n">3</span><h2 class="d3">Who it's for</h2></div>
+      <p class="muted" style="margin:-6px 0 14px;max-width:34em"><b>Your email is only for the receipt.</b> No account, no password. Your order shows up right here on the site, and your phone gets a buzz when it's ready.</p>
+      <div class="stack">
+        <div class="two">
+          <label class="f">Your name<input type="text" name="name" required placeholder="Your name" autocomplete="name"></label>
+          <label class="f">Your email<input type="email" name="email" required placeholder="you@email.com" autocomplete="email" inputmode="email"></label>
+        </div>
+        <label class="f">Your brand<input type="text" name="place" required placeholder="Trattoria Luna, Studio Mar, @yourname…" autocomplete="organization"><span class="muted" style="font-weight:400">A shop, a studio, or just the name people know you by online.</span></label>
+        <label class="f">Where will it live? (optional)<input type="text" name="notes" placeholder="Website, Instagram, Google, a menu, a banner…"></label>
+      </div>
+    </div>
+
+    <div class="card lime fade">
+      <div class="step"><span class="n">4</span><h2 class="d3">Pay and send</h2></div>
+      <div class="send">
+        <button class="btn bprem" type="submit" id="sendbtn"><span class="bword">Pay <span id="paybtn-amount">$350</span> and send</span> <span class="arr">↗</span></button>
+        <p class="muted" style="max-width:28em">Card, Apple Pay or Google Pay, on a secure Stripe page. Stripe emails your receipt. We listen, we build it, and it's ready right here on the site within 1 hour, with a buzz on your phone.</p>
+      </div>
+    </div>
+    <p class="status" id="status" aria-live="polite"></p>
+  </form>
+
+  <!-- after sending -->
+  <section class="thanks" id="thanks" aria-live="polite">
+    <div class="card lime fade">
+      <span class="pill big">We heard you</span>
+      <h1 class="d1" style="margin-top:22px">Thanks. It's in our hands.</h1>
+      <p class="body" style="margin-top:14px;max-width:34em" id="thanks-line">Paid. We're listening to it now.</p>
+    </div>
+    <div class="card line fade">
+      <h2 class="d3" style="margin-bottom:14px">What happens next</h2>
+      <ul class="timeline">
+        <li><b>Right now</b><span>Stripe emails your receipt. That's the only email. The clock is running.</span></li>
+        <li><b>Within 1 hour</b><span>Your brand, the way you described it, lands in your inbox. Full quality, ready to use.</span></li>
+        <li><b>Something off?</b><span>Reply to the Stripe receipt or write to hello@samestudio.co. We fix it, free. A real person answers.</span></li>
+      </ul>
+    </div>
+    <div class="send fade"><a class="btn" id="track" href="ready.html">See your order <span class="arr">↗</span></a><a class="btn" style="background:transparent;color:var(--ink);border:1px solid var(--ink)" href="index.html">Back to the site</a></div>
+  </section>
+</div>
+
+<script src="same-orders.js" data-pill></script>
+<script>
+(function(){
+  var form=document.getElementById('order'),list=document.getElementById('files'),count=document.getElementById('count'),status=document.getElementById('status'),btn=document.getElementById('sendbtn'),filesField=document.getElementById('files-field');
+  var picked=[]; // {file, el, bar, key, link, done, err}
+  var API='/api/upload';
+  var preview = /claude/.test(location.hostname) || location.protocol==='file:';
+  /* no pipe behind this page? then it's a preview, whatever the address is */
+  fetch('/api/checkout',{cache:'no-store'}).then(function(r){ if((r.headers.get('content-type')||'').indexOf('json')<0) preview=true; }).catch(function(){ preview=true; });
+  var orderId='SM-'+new Date().toISOString().slice(2,10).replace(/-/g,'')+'-'+Math.random().toString(36).slice(2,6).toUpperCase();
+  document.getElementById('order-field').value=orderId;
+  var orderKey=Same.newKey(); document.getElementById('key-field').value=orderKey;
+  function remember(extra){ var o={k:orderKey,order:orderId,plan:(form.querySelector('input[name=plan]:checked')||{}).value||'',place:(form.querySelector('input[name=place]')||{value:''}).value.trim(),kind:'idea'}; if(extra) for(var x in extra) o[x]=extra[x]; Same.save(o); var tr=document.getElementById('track'); if(tr) tr.href=Same.readyUrl(orderKey); }
+  function planPrice(){ var v=(form.querySelector('input[name=plan]:checked')||{}).value||''; var m=v.match(/\$(\d+)/); return m?'$'+m[1]:''; }
+  function syncPay(){ document.getElementById('paybtn-amount').textContent=planPrice(); }
+  form.querySelectorAll('input[name=plan]').forEach(function(r){ r.addEventListener('change',syncPay); });
+
+
+  /* preselect a plan from the link: order.html#everything / #setplus / #set */
+  var h=(location.hash||'').replace('#','');
+  var map={everything:'Everything $500',setplus:'The Set+ $350',set:'The Set $100'};
+  if(map[h]){ var r=form.querySelector('input[name=plan][value="'+map[h]+'"]'); if(r) r.checked=true; }
+  syncPay();
+  /* back from Stripe */
+  var paid=new URL(location.href).searchParams.get('paid');
+  var backKey=new URL(location.href).searchParams.get('k'); if(backKey&&/^[a-z0-9]{12,40}$/i.test(backKey)){ orderKey=backKey; Same.save({k:backKey}); var tr0=document.getElementById('track'); if(tr0) tr0.href=Same.readyUrl(backKey); }
+  if(paid){ showThanks('Checking your payment…'); fetch('/api/checkout?session='+encodeURIComponent(paid)).then(function(r){return r.json()}).then(function(j){ if(j.paid){ document.getElementById('thanks-line').textContent='Paid '+(j.amount/100).toFixed(0)+' '+String(j.currency||'usd').toUpperCase()+'. Order '+(j.order||'')+'. We\'re checking your files now.'; if(j.key) Same.save({k:j.key,order:j.order,plan:j.plan}); } else { document.getElementById('thanks-line').textContent='We did not see the payment go through. If your card was charged, reply to the Stripe receipt or email hello@samestudio.co.'; } }).catch(function(){}); }
+  if(location.hash==='#cancel'){ status.textContent='Payment cancelled. Your files are still here. Tap Pay when you\'re ready.'; }
+
+  function human(n){ return n>1073741824 ? (n/1073741824).toFixed(1)+' GB' : n>1048576 ? (n/1048576).toFixed(1)+' MB' : Math.round(n/1024)+' KB'; }
+  function tile(f){
+    var d=document.createElement('div'); d.className='file';
+    if(f.type.indexOf('image/')===0){ var im=document.createElement('img'); im.src=URL.createObjectURL(f); im.alt=''; d.appendChild(im); }
+    else if(f.type.indexOf('video/')===0){ var v=document.createElement('video'); v.src=URL.createObjectURL(f); v.muted=true; v.playsInline=true; d.appendChild(v); }
+    var nm=document.createElement('span'); nm.className='nm'; nm.textContent=f.name; d.appendChild(nm);
+    var bar=document.createElement('span'); bar.className='bar'; var fill=document.createElement('i'); bar.appendChild(fill); d.appendChild(bar);
+    list.appendChild(d); return {el:d,bar:fill};
+  }
+  function refresh(){
+    var total=0,done=0,err=0; picked.forEach(function(p){ total+=p.file.size; if(p.done) done++; if(p.err) err++; });
+    count.innerHTML = picked.length ? '<span><b>'+picked.length+'</b> file'+(picked.length>1?'s':'')+' · '+human(total)+(done===picked.length?' · all uploaded':' · uploading…')+'</span>'+(err?'<span class="warn">'+err+' failed. Tap Send again to retry.</span>':'') : '';
+    filesField.value = picked.filter(function(p){return p.link}).map(function(p){ return p.file.name+' ('+human(p.file.size)+') '+p.link; }).join('\n');
+  }
+
+  /* send bytes with progress, retrying up to 3 times */
+  function put(url, blob, onProgress, tries){
+    tries=tries||0;
+    return new Promise(function(res,rej){
+      var x=new XMLHttpRequest(); x.open('PUT',url,true);
+      x.upload.onprogress=function(e){ if(e.lengthComputable&&onProgress) onProgress(e.loaded/e.total); };
+      x.onload=function(){ if(x.status>=200&&x.status<300){ res(x.getResponseHeader('ETag')||''); } else rej(new Error('HTTP '+x.status)); };
+      x.onerror=function(){ rej(new Error('network')); };
+      x.send(blob);
+    }).catch(function(e){ if(tries<3) return put(url,blob,onProgress,tries+1); throw e; });
+  }
+  function api(payload){ return fetch(API,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(payload)}).then(function(r){ return r.json().then(function(j){ if(!r.ok||j.error) throw new Error(j.error||('HTTP '+r.status)); return j; }); }); }
+
+  function upload(p){
+    var f=p.file; p.err=false;
+    if(preview){ /* no pipe behind the preview page: just animate */
+      return new Promise(function(res){ var k=0; var t=setInterval(function(){ k+=.12; p.bar.style.width=Math.min(100,k*100)+'%'; if(k>=1){ clearInterval(t); p.done=true; p.link='preview'; p.el.classList.add('done'); refresh(); res(); } },120); });
+    }
+    return api({action:'start',name:f.name,size:f.size,type:f.type}).then(function(st){
+      p.key=st.key;
+      if(st.mode==='single'){
+        return put(st.url,f,function(r){ p.bar.style.width=(r*100)+'%'; }).then(function(){ return api({action:'link',key:st.key}); }).then(function(j){ p.link=j.link; });
+      }
+      var parts=[], n=st.urls.length, doneBytes=0;
+      var chain=Promise.resolve();
+      st.urls.forEach(function(url,i){
+        chain=chain.then(function(){
+          var start=i*st.partSize, end=Math.min(f.size,start+st.partSize), blob=f.slice(start,end);
+          return put(url,blob,function(r){ p.bar.style.width=((doneBytes+r*(end-start))/f.size*100)+'%'; }).then(function(etag){ doneBytes+=(end-start); parts.push({PartNumber:i+1,ETag:etag}); });
+        });
+      });
+      return chain.then(function(){ return api({action:'complete',key:st.key,uploadId:st.uploadId,parts:parts}); }).then(function(j){ p.link=j.link; });
+    }).then(function(){ p.done=true; p.el.classList.add('done'); p.bar.style.width='100%'; refresh(); })
+      .catch(function(e){ p.err=true; p.el.classList.add('err'); refresh(); throw e; });
+  }
+  function add(files){
+    var fresh=[];
+    for(var i=0;i<files.length;i++){ var f=files[i]; var t=tile(f); var p={file:f,el:t.el,bar:t.bar,done:false,err:false}; picked.push(p); fresh.push(p); }
+    refresh();
+    fresh.forEach(function(p){ upload(p).catch(function(){}); });
+  }
+  document.querySelectorAll('.media-in').forEach(function(input){ input.addEventListener('change',function(){ add(input.files); input.value=''; }); });
+  document.querySelectorAll('[data-drop]').forEach(function(drop){
+    ['dragenter','dragover'].forEach(function(ev){ drop.addEventListener(ev,function(e){ e.preventDefault(); drop.classList.add('over'); }); });
+    ['dragleave','drop'].forEach(function(ev){ drop.addEventListener(ev,function(e){ e.preventDefault(); drop.classList.remove('over'); }); });
+    drop.addEventListener('drop',function(e){ if(e.dataTransfer && e.dataTransfer.files) add(e.dataTransfer.files); });
+  });
+
+  function showThanks(line){
+    form.classList.add('off'); var t=document.getElementById('thanks'); t.classList.add('on');
+    if(line) document.getElementById('thanks-line').textContent=line;
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+  /* step 2: four ways, one at a time */
+  var way='voice';
+  document.querySelectorAll('.way').forEach(function(b){ b.addEventListener('click',function(){
+    way=b.dataset.way;
+    document.querySelectorAll('.way').forEach(function(x){ x.classList.toggle('on',x===b); });
+    document.querySelectorAll('.pane').forEach(function(p){ p.hidden=p.dataset.pane!==way; });
+    if(way==='text'){ var t=form.querySelector('textarea[name=brief]'); if(t) t.focus(); }
+  }); });
+
+  /* Done: sum up what they gave us and move on */
+  document.getElementById('done2').addEventListener('click',function(){
+    var v=picked.filter(function(p){return /braind-(voice|about-references)/.test(p.file.name)}).length, vid=picked.filter(function(p){return /braind-video/.test(p.file.name)||/^video\//.test(p.file.type)}).length, r=picked.length-v-vid;
+    var brief=(form.querySelector('textarea[name=brief]')||{value:''}).value.trim(), why=(form.querySelector('textarea[name=refs_notes]')||{value:''}).value.trim();
+    var bits=[]; if(v) bits.push(v+' voice note'+(v>1?'s':'')); if(vid) bits.push(vid+' video'+(vid>1?'s':'')); if(r) bits.push(r+' reference'+(r>1?'s':'')); if(brief||why) bits.push('your words');
+    document.getElementById('done-sum').textContent=bits.length?'Got it: '+bits.join(', ')+'. Add more anytime.':'Nothing yet. Record, drop or type something first.';
+    if(bits.length){ var nx=document.getElementById('step2').nextElementSibling; nx.scrollIntoView({behavior:'smooth',block:'start'}); var f=nx.querySelector('input'); if(f) setTimeout(function(){ f.focus({preventScroll:true}); },600); }
+  });
+
+  /* the orb: 5-second countdown, then record until tapped again */
+  (function(){
+    var can=!!(window.MediaRecorder && navigator.mediaDevices);
+    var state={kind:null,rec:null,stream:null,chunks:[],t0:0,tick:null,count:null};
+    function fmt(ms){ var s=Math.floor(ms/1000); return Math.floor(s/60)+':'+('0'+s%60).slice(-2); }
+    function parts(kind){ var orb=document.getElementById('orb-'+kind); return {orb:orb,mic:orb.querySelector('.mic'),num:orb.querySelector('.orb-num'),stop:orb.querySelector('.orb-stop'),hint:document.getElementById('hint-'+kind)}; }
+    function isVideo(kind){ return kind==='video'; }
+    function reset(kind){ var p=parts(kind); p.orb.classList.remove('counting','rec'); p.mic.style.display=''; p.num.hidden=true; p.stop.hidden=true; }
+    function begin(kind){
+      var p=parts(kind);
+      if(!can){ p.hint.textContent='Recording is not available in this browser. Use Upload and drop a voice memo or a video.'; return; }
+      var c=isVideo(kind)?{audio:true,video:{facingMode:'user',width:{ideal:1280}}}:{audio:true};
+      navigator.mediaDevices.getUserMedia(c).then(function(st){
+        state.stream=st; state.kind=kind;
+        if(isVideo(kind)){ var pv=document.getElementById('prev-video'); pv.srcObject=st; pv.hidden=false; pv.play().catch(function(){}); document.getElementById('play-video').hidden=true; }
+        /* countdown */
+        var n=5; p.orb.classList.add('counting'); p.mic.style.display='none'; p.num.hidden=false; p.num.textContent=n; p.hint.textContent='Get ready…';
+        state.count=setInterval(function(){ n--; if(n>0){ p.num.textContent=n; } else { clearInterval(state.count); state.count=null; go(kind); } },1000);
+      }).catch(function(){ p.hint.textContent='Your browser did not let us use the '+(isVideo(kind)?'camera':'microphone')+'. Allow it and tap again, or drop a file instead.'; });
+    }
+    function go(kind){
+      var p=parts(kind), st=state.stream;
+      var mt=['video/mp4','audio/mp4','video/webm','audio/webm'].filter(function(m){ return (isVideo(kind)?m.indexOf('video')===0:m.indexOf('audio')===0) && MediaRecorder.isTypeSupported(m); })[0];
+      var rec=new MediaRecorder(st, mt?{mimeType:mt}:undefined); state.rec=rec; state.chunks=[];
+      rec.ondataavailable=function(e){ if(e.data && e.data.size) state.chunks.push(e.data); };
+      rec.onstop=function(){
+        var type=rec.mimeType||(isVideo(kind)?'video/webm':'audio/webm'); var blob=new Blob(state.chunks,{type:type});
+        var ext=/mp4/.test(type)?'mp4':/ogg/.test(type)?'ogg':'webm';
+        var f=new File([blob],'braind-'+(kind==='video'?'video':kind==='refs'?'about-references':'voice')+'-'+Date.now()+'.'+ext,{type:type});
+        st.getTracks().forEach(function(t){ t.stop(); });
+        var url=URL.createObjectURL(blob);
+        if(isVideo(kind)){ var pv=document.getElementById('prev-video'); pv.hidden=true; pv.srcObject=null; var pl=document.getElementById('play-video'); pl.src=url; pl.hidden=false; }
+        else { var pa=document.getElementById('play-'+kind); pa.src=url; pa.hidden=false; }
+        add([f]); reset(kind); p.hint.textContent='Got it. Listen back, or tap the circle for another take. Every take is kept.';
+      };
+      rec.start(1000); state.t0=Date.now();
+      p.orb.classList.remove('counting'); p.orb.classList.add('rec'); p.num.hidden=true; p.stop.hidden=false;
+      p.hint.textContent='Recording 0:00. Just talk. Tap the circle to stop.';
+      state.tick=setInterval(function(){ p.hint.textContent='Recording '+fmt(Date.now()-state.t0)+'. Just talk. Tap the circle to stop.'; },500);
+    }
+    function stop(kind){
+      clearInterval(state.tick); state.tick=null;
+      if(state.count){ clearInterval(state.count); state.count=null; if(state.stream) state.stream.getTracks().forEach(function(t){ t.stop(); }); reset(kind); parts(kind).hint.textContent='Cancelled. Tap the circle when you\'re ready.'; var pv=document.getElementById('prev-video'); pv.hidden=true; return; }
+      if(state.rec && state.rec.state!=='inactive') state.rec.stop();
+    }
+    ['voice','video','refs'].forEach(function(kind){
+      document.getElementById('orb-'+kind).addEventListener('click',function(){
+        var busy=state.count || (state.rec && state.rec.state==='recording');
+        if(busy){ if(state.kind===kind) stop(kind); return; }
+        begin(kind);
+      });
+    });
+  })();
+
+  form.addEventListener('submit',function(e){
+    e.preventDefault();
+    var email=form.querySelector('input[name=email]').value.trim(), link='', nm=form.querySelector('input[name=name]').value.trim(), place=form.querySelector('input[name=place]').value.trim();
+    if(!email||!nm||!place){ status.textContent='Add your name, your email (just for the receipt) and your brand.'; return; }
+    var brief=(form.querySelector('textarea[name=brief]')||{value:''}).value.trim();
+    if(!picked.length && !brief){ status.textContent='Record it, drop a file, or write a few words. One is enough.'; return; }
+    var pending=picked.filter(function(p){return !p.done});
+    var retry=pending.filter(function(p){return p.err}).map(function(p){ return upload(p).catch(function(){}); });
+    btn.disabled=true;
+    if(pending.length){ status.textContent='Finishing your uploads… you can leave this tab open.'; }
+    var waitAll=function(){ return new Promise(function(res){ (function tick(){ if(picked.every(function(p){return p.done||p.err})) res(); else setTimeout(tick,400); })(); }); };
+    Promise.all(retry).then(waitAll).then(function(){
+      var failed=picked.filter(function(p){return p.err}).length;
+      if(failed){ btn.disabled=false; status.textContent=failed+' file'+(failed>1?'s':'')+' did not upload. Tap Send again to retry, or email them to hello@samestudio.co.'; return; }
+      status.textContent='Saving your order…';
+      if(preview){ remember(); setTimeout(function(){ btn.disabled=false; status.textContent=''; showThanks('Test order saved in this browser (nothing was charged; on the live site you would now pay '+planPrice()+' on Stripe). Close the tab, come back, the site remembers you.'); },500); return; }
+      var fd=new FormData(form);
+      return fetch(form.getAttribute('action')||'/',{method:'POST',body:fd}).then(function(r){
+        btn.disabled=false;
+        if(!r.ok){ btn.disabled=false; status.textContent='Something went wrong. Email us at hello@samestudio.co and we\'ll take it from there.'; return; }
+        status.textContent='Taking you to the payment…';
+        var plan=(form.querySelector('input[name=plan]:checked')||{}).value;
+        remember({name:nm});
+        fetch('/api/order',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({k:orderKey,order:orderId,plan:plan,place:place,name:nm,email:email,kind:'idea',brief:brief,files:filesField.value})}).catch(function(){});
+        return fetch('/api/checkout',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({plan:plan,email:email,place:place,order:orderId,key:orderKey,page:'idea'})}).then(function(r){return r.json()}).then(function(j){ if(j.url){ location.href=j.url; } else { btn.disabled=false; status.textContent=(j.error||'Payment page did not open.')+' Your files are saved. Email hello@samestudio.co and we will send you a payment link.'; } });
+      }).catch(function(){ btn.disabled=false; status.textContent='No connection. Email us at hello@samestudio.co and we\'ll take it from there.'; });
+    });
+  });
+})();
+</script>
+</body>
+</html>
