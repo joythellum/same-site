@@ -168,7 +168,7 @@ export default async (req) => {
         const media = [];
         for (const m of r.media || []) media.push({ name: m.name, type: m.type || "", url: new URL(await fileLink(m.key), origin).toString() });
         out.push({ k: r.k, order: r.order, stage: r.stage || "new", place: r.place, name: r.name, kind: r.kind, link: r.link, brief: r.brief, notes: r.notes,
-          created: r.created, approvedAt: r.approvedAt || null, test: !!r.test, media, harvestError: r.harvest && r.harvest.error || "" });
+          created: r.created, approvedAt: r.approvedAt || null, approvedBy: r.approvedBy || "", test: !!r.test, media, harvestError: r.harvest && r.harvest.error || "" });
       }
       out.sort((a, b) => a.created - b.created);
       return json({ now: Date.now(), queue: out });
@@ -196,7 +196,9 @@ export default async (req) => {
       ]);
       out.approveLink = link;
     } else if (b.action === "stage") {
-      rec.stage = String(b.stage || rec.stage); if (b.note) rec.note = String(b.note).slice(0, 500);
+      const st = String(b.stage || rec.stage);
+      if (st === "approved") return json({ error: "Only Llum can approve, from his email or done page." }, 403);
+      rec.stage = st; if (b.note) rec.note = String(b.note).slice(0, 500);
     } else if (b.action === "import") {
       const r = await fetch(String(b.url), { headers: { "user-agent": UA } });
       if (!r.ok) return json({ error: `Could not fetch the result (HTTP ${r.status})` }, 502);

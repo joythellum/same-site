@@ -137,7 +137,7 @@ export default async (req) => {
       if (!rec) return json({ error: "No order with this key" }, 404);
       let sent = 0;
       if (b.action === "ready") sent = await markReady(rec, origin);
-      else if (b.action === "approve") { rec.stage = "approved"; rec.approvedAt = Date.now(); }
+      else if (b.action === "approve") { rec.stage = "approved"; rec.approvedAt = Date.now(); rec.approvedBy = "done-page"; }
       else if (b.action === "working") { rec.status = "working"; rec.readyAt = null; if (rec.stage === "ready") rec.stage = "approved"; }
       else if (b.action === "note") rec.note = String(b.note || "").slice(0, 500);
       else if (b.action === "delivery") rec.deliveryLink = String(b.link || "").slice(0, 1000);
