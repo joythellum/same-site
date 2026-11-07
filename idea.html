@@ -535,6 +535,10 @@
       /* the order is saved on our side first; payment comes after */
       return fetch('/api/order',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({k:orderKey,order:orderId,plan:plan,place:place,name:nm,email:email,kind:'idea',brief:brief,notes:notes,files:filesField.value})}).then(function(r){return r.json()}).then(function(o){
         if(!o||!o.ok){ btn.disabled=false; status.textContent=((o&&o.error)||'Could not save the order.')+' Email us at hello@samestudio.co and we\'ll take it from there.'; return; }
+        /* copy of the order to your inbox (Netlify form email) */
+        var nf=new URLSearchParams(); new FormData(form).forEach(function(v,k){ if(typeof v==='string') nf.append(k,v); });
+        nf.set('order',orderId);
+        return fetch('/',{method:'POST',headers:{'content-type':'application/x-www-form-urlencoded'},body:nf.toString()}).catch(function(){}).then(function(){
         if(!PAY_ON){ btn.disabled=false; status.textContent=''; showThanks('Order '+orderId+' is in. We\u2019re on it: it lands in your space, and your email gets a note when it\u2019s ready.'); return; }
         if(o.skipPay){ btn.disabled=false; status.textContent=''; showThanks('Order '+orderId+' is in. You\u2019re the owner, so no payment. It lands in your space when it\u2019s done.'); return; }
         status.textContent='Taking you to the payment…';
@@ -543,6 +547,7 @@
           btn.disabled=false; status.textContent='';
           if(/not set up/i.test(j.error||'')){ showThanks('Order '+orderId+' is in. Payments are not switched on yet, so nothing was charged. Close the tab and come back any time: the site remembers you.'); return; }
           status.textContent=(j.error||'Payment page did not open.')+' Your order is saved. Email hello@samestudio.co and we will send you a payment link.';
+        });
         });
       }).catch(function(){ btn.disabled=false; status.textContent='No connection. Email us at hello@samestudio.co and we\'ll take it from there.'; });
     });
