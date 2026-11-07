@@ -122,7 +122,7 @@
       <span class="pill ready"><span class="d"></span>Ready</span>
       <h1 class="d1" style="margin-top:22px">Your photos are ready.</h1>
       <p class="body" style="margin-top:14px;max-width:34em"><span id="r-count">0 files</span> · full quality · sized for every platform. <span id="r-demo" hidden><b>Demo:</b> these are sample photos from the site. On the live site this is your own work.</span></p>
-      <div class="row" style="margin-top:22px"><button class="btn" id="dl">Download all <span class="arr">↓</span></button><span class="status" id="dl-status"></span></div>
+      <div class="row" style="margin-top:22px"><button class="btn" id="dl">Download all <span class="arr">↓</span></button><a class="btn" id="vlink" target="_blank" rel="noopener" hidden>Open your videos <span class="arr">↗</span></a><span class="status" id="dl-status"></span></div>
       <div class="gal" id="gal"></div>
     </div>
     <div class="card line fade">
@@ -162,7 +162,8 @@
     $('meta').textContent=(j.order?'Order '+j.order+' · ':'')+(j.plan||'')+(j.place?' · '+j.place:'');
     if(j.status==='ready'){
       $('working').hidden=true; $('ready').hidden=false; $('r-demo').hidden=!demo;
-      $('r-count').textContent=j.files.length+' file'+(j.files.length===1?'':'s');
+      $('r-count').textContent=j.files.length+' file'+(j.files.length===1?'':'s')+(j.deliveryLink?' + your videos':'');
+      $('vlink').hidden=!j.deliveryLink; if(j.deliveryLink) $('vlink').href=/^https?:/i.test(j.deliveryLink)?j.deliveryLink:'https://'+j.deliveryLink; $('dl').hidden=!j.files.length;
       var g=$('gal'); g.innerHTML='';
       j.files.forEach(function(f){
         var a=document.createElement('a'); a.href=f.url; a.target='_blank'; a.rel='noopener'; a.setAttribute('download',f.name);

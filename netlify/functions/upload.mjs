@@ -1,92 +1,73 @@
 // Same · upload pipe
-// The browser asks this function for signed links, then sends the file bytes straight to
-// Cloudflare R2. Nothing heavy passes through Netlify. Works for a 2 MB photo or a 20 GB video.
+// Free by default: files go into Netlify Blobs in 4 MB parts, up to 20 MB per file (every photo, short clips).
+// With the four R2_* variables set, files go straight to Cloudflare R2 instead, any size.
 //
-// Needs four environment variables in Netlify (Site settings → Environment variables):
-//   R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_BUCKET
-//
-// Actions (POST JSON {action, ...}):
-//   start    {name, size, type}          → {key, mode:"single", url}  or  {key, mode:"multipart", uploadId, partSize, urls:[...]}
-//   complete {key, uploadId, parts}      → {ok, link}   (multipart only)
-//   link     {key}                       → {link}       (single-file upload: a 7-day download link)
+// POST JSON {action, ...}
+//   start    {name, size, type, deliver?}  → blobs: {key, mode:"parts", partSize, parts, url}
+//                                            r2:    {key, mode:"single", url} or {key, mode:"multipart", uploadId, partSize, urls}
+//   complete {key, uploadId?, parts?}      → {ok, link}
+//   link     {key}                         → {link}            (r2 single-file uploads)
+//   abort    {key, uploadId}               → {ok}              (r2 multipart)
+// deliver:<order key> puts the file in that order's delivered folder (needs the admin header).
 
-import { S3Client, PutObjectCommand, GetObjectCommand, CreateMultipartUploadCommand, UploadPartCommand, CompleteMultipartUploadCommand, AbortMultipartUploadCommand } from "@aws-sdk/client-s3";
+import { PutObjectCommand, CreateMultipartUploadCommand, UploadPartCommand, CompleteMultipartUploadCommand, AbortMultipartUploadCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { r2Ready, r2, Bucket, getJSON, putJSON, json, isAdmin, safeName, rand, fileLink, PART, BLOB_MAX } from "../lib/r2.mjs";
 
-const PART_SIZE = 50 * 1024 * 1024;       // 50 MB parts
-const SINGLE_MAX = 90 * 1024 * 1024;      // up to 90 MB goes in one shot
-const LINK_DAYS = 7;
-
-function client() {
-  const { R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY } = process.env;
-  if (!R2_ACCOUNT_ID || !R2_ACCESS_KEY_ID || !R2_SECRET_ACCESS_KEY || !process.env.R2_BUCKET) {
-    throw new Error("R2 is not set up yet: add R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY and R2_BUCKET in Netlify.");
-  }
-  return new S3Client({
-    region: "auto",
-    endpoint: `https://${R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
-    credentials: { accessKeyId: R2_ACCESS_KEY_ID, secretAccessKey: R2_SECRET_ACCESS_KEY },
-  });
-}
-
-const json = (body, status = 200) => new Response(JSON.stringify(body), { status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
-
-function safeName(name) {
-  return String(name || "file").replace(/[^\w.\-()\[\] ]+/g, "_").slice(0, 120);
-}
+const R2_PART = 50 * 1024 * 1024, R2_SINGLE = 90 * 1024 * 1024;
 
 export default async (req) => {
   if (req.method !== "POST") return json({ error: "POST only" }, 405);
   let body;
   try { body = await req.json(); } catch { return json({ error: "Bad JSON" }, 400); }
-  const Bucket = process.env.R2_BUCKET;
-  let s3;
-  try { s3 = client(); } catch (e) { return json({ error: e.message }, 500); }
 
   try {
     if (body.action === "start") {
-      const size = Number(body.size || 0);
-      const day = new Date().toISOString().slice(0, 10);
-      const rand = Math.random().toString(36).slice(2, 8);
-      let key = `${day}/${rand}-${safeName(body.name)}`;
-      // delivered files (from the done page) go into the order's own folder: delivered/<key>/<name>
+      const size = Number(body.size || 0), type = String(body.type || "application/octet-stream").slice(0, 100), name = safeName(body.name);
+      let key;
       if (body.deliver) {
-        const admin = process.env.ADMIN_SECRET && (req.headers.get("x-same-admin") === process.env.ADMIN_SECRET);
-        if (!admin) return json({ error: "Not allowed" }, 403);
+        if (!(await isAdmin(req))) return json({ error: "Not allowed" }, 403);
         if (!/^[a-z0-9]{12,40}$/i.test(String(body.deliver))) return json({ error: "Bad order key" }, 400);
-        key = `delivered/${body.deliver}/${safeName(body.name)}`;
+        key = `delivered/${body.deliver}/${name}`;
+      } else {
+        key = `up/${new Date().toISOString().slice(0, 10)}/${rand(16)}-${name}`;
       }
-      const ContentType = body.type || "application/octet-stream";
-      if (size <= SINGLE_MAX) {
-        const url = await getSignedUrl(s3, new PutObjectCommand({ Bucket, Key: key, ContentType }), { expiresIn: 3600 });
-        return json({ key, mode: "single", url });
+
+      if (r2Ready()) {
+        const s3 = r2();
+        if (size <= R2_SINGLE) return json({ key: "r2:" + key, mode: "single", url: await getSignedUrl(s3, new PutObjectCommand({ Bucket: Bucket(), Key: key, ContentType: type }), { expiresIn: 3600 }) });
+        const created = await s3.send(new CreateMultipartUploadCommand({ Bucket: Bucket(), Key: key, ContentType: type }));
+        const urls = [];
+        for (let n = 1; n <= Math.ceil(size / R2_PART); n++) urls.push(await getSignedUrl(s3, new UploadPartCommand({ Bucket: Bucket(), Key: key, UploadId: created.UploadId, PartNumber: n }), { expiresIn: 6 * 3600 }));
+        return json({ key: "r2:" + key, mode: "multipart", uploadId: created.UploadId, partSize: R2_PART, urls });
       }
-      const created = await s3.send(new CreateMultipartUploadCommand({ Bucket, Key: key, ContentType }));
-      const parts = Math.ceil(size / PART_SIZE);
-      const urls = [];
-      for (let n = 1; n <= parts; n++) {
-        urls.push(await getSignedUrl(s3, new UploadPartCommand({ Bucket, Key: key, UploadId: created.UploadId, PartNumber: n }), { expiresIn: 6 * 3600 }));
-      }
-      return json({ key, mode: "multipart", uploadId: created.UploadId, partSize: PART_SIZE, urls });
+
+      if (size > BLOB_MAX) return json({ error: `"${name}" is ${Math.round(size / 1048576)} MB. Files up to 20 MB upload here; for bigger videos use "Just a link" (Drive, WeTransfer, Dropbox).`, tooBig: true }, 413);
+      const parts = Math.max(1, Math.ceil(size / PART));
+      await putJSON("f/" + key, { name, size, type, parts, done: false, at: Date.now() });
+      return json({ key, mode: "parts", partSize: PART, parts, url: `/api/file?key=${encodeURIComponent(key)}` });
     }
 
     if (body.action === "complete") {
-      const Parts = (body.parts || []).map((p) => ({ PartNumber: Number(p.PartNumber), ETag: String(p.ETag) })).sort((a, b) => a.PartNumber - b.PartNumber);
-      await s3.send(new CompleteMultipartUploadCommand({ Bucket, Key: body.key, UploadId: body.uploadId, MultipartUpload: { Parts } }));
-      const link = await getSignedUrl(s3, new GetObjectCommand({ Bucket, Key: body.key }), { expiresIn: LINK_DAYS * 86400 });
-      return json({ ok: true, link });
+      const key = String(body.key || "");
+      if (key.startsWith("r2:")) {
+        const k = key.slice(3);
+        const Parts = (body.parts || []).map((p) => ({ PartNumber: Number(p.PartNumber), ETag: String(p.ETag) })).sort((a, b) => a.PartNumber - b.PartNumber);
+        await r2().send(new CompleteMultipartUploadCommand({ Bucket: Bucket(), Key: k, UploadId: body.uploadId, MultipartUpload: { Parts } }));
+        return json({ ok: true, link: await fileLink(key) });
+      }
+      const info = await getJSON("f/" + key);
+      if (!info) return json({ error: "No such upload" }, 404);
+      info.done = true; await putJSON("f/" + key, info);
+      return json({ ok: true, link: new URL(await fileLink(key), req.url).toString() });
     }
 
-    if (body.action === "abort") {
-      await s3.send(new AbortMultipartUploadCommand({ Bucket, Key: body.key, UploadId: body.uploadId }));
+    if (body.action === "link") return json({ link: await fileLink(String(body.key || "")) });
+
+    if (body.action === "abort" && String(body.key || "").startsWith("r2:")) {
+      await r2().send(new AbortMultipartUploadCommand({ Bucket: Bucket(), Key: String(body.key).slice(3), UploadId: body.uploadId }));
       return json({ ok: true });
     }
-
-    if (body.action === "link") {
-      const link = await getSignedUrl(s3, new GetObjectCommand({ Bucket, Key: body.key }), { expiresIn: LINK_DAYS * 86400 });
-      return json({ link });
-    }
-
     return json({ error: "Unknown action" }, 400);
   } catch (e) {
     return json({ error: e.message || "Upload service error" }, 500);

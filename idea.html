@@ -257,7 +257,7 @@
       </div>
 
       <div class="pane" data-pane="refs" hidden>
-        <p class="orb-hint" style="margin-bottom:12px">Brands you love, photos, screenshots, videos, music, anything that shows the feeling you're after. Any size.</p>
+        <p class="orb-hint" style="margin-bottom:12px">Brands you love, photos, screenshots, videos, music, anything that shows the feeling you're after. Up to 20 MB each.</p>
         <div class="drop" data-drop>
           <input type="file" class="media-in" multiple>
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg>
@@ -391,6 +391,11 @@
     }
     return api({action:'start',name:f.name,size:f.size,type:f.type}).then(function(st){
       p.key=st.key;
+      if(st.mode==='parts'){ /* free storage: 4 MB parts, one after the other */
+        var chainP=Promise.resolve(), sentB=0;
+        for(var pi=0;pi<st.parts;pi++){ (function(i){ chainP=chainP.then(function(){ var s0=i*st.partSize, e0=Math.min(f.size,s0+st.partSize); return put(st.url+'&part='+i,f.slice(s0,e0),function(r){ p.bar.style.width=((sentB+r*(e0-s0))/Math.max(1,f.size)*100)+'%'; }).then(function(){ sentB+=(e0-s0); }); }); })(pi); }
+        return chainP.then(function(){ return api({action:'complete',key:st.key}); }).then(function(j){ p.link=j.link; });
+      }
       if(st.mode==='single'){
         return put(st.url,f,function(r){ p.bar.style.width=(r*100)+'%'; }).then(function(){ return api({action:'link',key:st.key}); }).then(function(j){ p.link=j.link; });
       }
@@ -404,7 +409,7 @@
       });
       return chain.then(function(){ return api({action:'complete',key:st.key,uploadId:st.uploadId,parts:parts}); }).then(function(j){ p.link=j.link; });
     }).then(function(){ p.done=true; p.el.classList.add('done'); p.bar.style.width='100%'; refresh(); })
-      .catch(function(e){ p.err=true; p.el.classList.add('err'); refresh(); throw e; });
+      .catch(function(e){ p.err=true; p.el.classList.add('err'); if(/20 MB/.test(e.message||'')){ p.tooBig=true; status.textContent=e.message; } refresh(); throw e; });
   }
   function add(files){
     var fresh=[];
@@ -465,8 +470,9 @@
     function go(kind){
       var p=parts(kind), st=state.stream;
       var mt=['video/mp4','audio/mp4','video/webm','audio/webm'].filter(function(m){ return (isVideo(kind)?m.indexOf('video')===0:m.indexOf('audio')===0) && MediaRecorder.isTypeSupported(m); })[0];
-      var rec=new MediaRecorder(st, mt?{mimeType:mt}:undefined); state.rec=rec; state.chunks=[];
-      rec.ondataavailable=function(e){ if(e.data && e.data.size) state.chunks.push(e.data); };
+      var opts=isVideo(kind)?{videoBitsPerSecond:1200000,audioBitsPerSecond:96000}:{audioBitsPerSecond:96000}; if(mt) opts.mimeType=mt;
+      var rec; try{ rec=new MediaRecorder(st, opts); }catch(e){ rec=new MediaRecorder(st, mt?{mimeType:mt}:undefined); } state.rec=rec; state.chunks=[]; var total=0;
+      rec.ondataavailable=function(e){ if(e.data && e.data.size){ state.chunks.push(e.data); total+=e.data.size; if(total>19*1024*1024 && rec.state==='recording'){ p.hint.textContent='That\'s the max for one take. Saved. Tap again to keep going.'; rec.stop(); } } };
       rec.onstop=function(){
         var type=rec.mimeType||(isVideo(kind)?'video/webm':'audio/webm'); var blob=new Blob(state.chunks,{type:type});
         var ext=/mp4/.test(type)?'mp4':/ogg/.test(type)?'ogg':'webm';
@@ -503,13 +509,13 @@
     var brief=(form.querySelector('textarea[name=brief]')||{value:''}).value.trim();
     if(!picked.length && !brief){ status.textContent='Record it, drop a file, or write a few words. One is enough.'; return; }
     var pending=picked.filter(function(p){return !p.done});
-    var retry=pending.filter(function(p){return p.err}).map(function(p){ return upload(p).catch(function(){}); });
+    var retry=pending.filter(function(p){return p.err&&!p.tooBig}).map(function(p){ return upload(p).catch(function(){}); });
     btn.disabled=true;
     if(pending.length){ status.textContent='Finishing your uploads… you can leave this tab open.'; }
     var waitAll=function(){ return new Promise(function(res){ (function tick(){ if(picked.every(function(p){return p.done||p.err})) res(); else setTimeout(tick,400); })(); }); };
     Promise.all(retry).then(waitAll).then(function(){
       var failed=picked.filter(function(p){return p.err}).length;
-      if(failed){ btn.disabled=false; status.textContent=failed+' file'+(failed>1?'s':'')+' did not upload. Tap Send again to retry, or email them to hello@samestudio.co.'; return; }
+      if(failed){ btn.disabled=false; var big=picked.filter(function(p){return p.tooBig}).length; status.textContent=big?(big+' file'+(big>1?'s are':' is')+' over 20 MB. Remove '+(big>1?'them':'it')+' and paste a Drive or WeTransfer link in "Just a link" instead.'):(failed+' file'+(failed>1?'s':'')+' did not upload. Tap Send again to retry, or email them to hello@samestudio.co.'); return; }
       status.textContent='Saving your order…';
       if(preview){ remember(); setTimeout(function(){ btn.disabled=false; status.textContent=''; showThanks('Test order saved in this browser (nothing was charged; on the live site you would now pay '+planPrice()+' on Stripe). Close the tab, come back, the site remembers you.'); },500); return; }
       var fd=new FormData(form);

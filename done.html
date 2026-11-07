@@ -66,7 +66,7 @@
   <div class="card yellow">
     <span class="pill big">Mark it done</span>
     <h1 class="d1" style="margin-top:18px">Drop the finished files. Press Ready. The phone buzzes.</h1>
-    <div class="row" style="margin-top:18px" id="adminrow"><input type="password" id="secret" placeholder="Your admin secret (ADMIN_SECRET)"><button class="btn" id="unlock">Unlock</button><span class="status" id="admin-status"></span></div>
+    <div class="row" style="margin-top:18px" id="adminrow"><input type="password" id="secret" placeholder="Your password"><button class="btn" id="unlock">Unlock</button><span class="status" id="admin-status"></span></div>
   </div>
 
   <div class="card line">
@@ -82,6 +82,7 @@
     <pre id="w-brief" hidden></pre>
     <label class="drop" style="margin-top:16px"><input type="file" id="media" multiple accept="image/*,video/*"><span class="d3" style="font-size:18px">Drop the finished photos and videos</span><span class="muted">They go to delivered/&lt;order key&gt;/ in your bucket</span></label>
     <div class="files" id="files"></div>
+    <div class="row" style="margin-top:14px"><input type="text" id="dlink" placeholder="Or paste a Drive / WeTransfer link for big videos" style="flex:1;min-width:220px"><button class="btn ghost" id="dlink-save">Save link</button></div>
     <div class="row" style="margin-top:18px"><button class="btn lime" id="ready">Mark as ready and buzz the phone ✓</button><button class="btn ghost" id="working">Back to "working"</button><a class="btn ghost" id="view" target="_blank" rel="noopener">Open the client page ↗</a></div>
     <p class="status" id="w-status" style="margin-top:10px"></p>
   </div>
@@ -108,6 +109,7 @@
     $('work').hidden=false; $('w-order').textContent=o.order||o.k; $('w-meta').textContent='Key '+o.k+' · '+(o.plan||'')+' · '+(o.place||'')+(o.link?' · link: '+o.link:'');
     var b=[o.brief?'Brief: '+o.brief:'', o.files?'Files:\n'+o.files:''].filter(Boolean).join('\n\n'); $('w-brief').hidden=!b; $('w-brief').textContent=b;
     $('w-linkrow').hidden=!o.link; if(o.link){ $('w-link').href=/^https?:/i.test(o.link)?o.link:'https://'+o.link; $('w-linktxt').textContent=o.link; }
+    $('dlink').value=o.deliveryLink||'';
     $('view').href=Same.readyUrl(o.k); $('files').innerHTML=''; $('w-status').textContent='';
     load();
   }
@@ -126,17 +128,24 @@
       l.forEach(function(o){ list.appendChild(row({k:o.k,order:o.order,plan:o.plan,place:o.place,created:o.created,paid:true,status:o.demoReadyAt||Date.now()>=o.created+Same.DEMO_MS?'ready':'working'})); });
     }
   }
-  $('unlock').addEventListener('click',function(){ secret=$('secret').value.trim(); try{ localStorage.setItem('same.admin',secret); }catch(e){} $('admin-status').textContent=live?'Unlocked for this browser.':'Demo mode: no secret needed.'; load(); });
+  $('unlock').addEventListener('click',function(){ var pw=$('secret').value.trim(); var st=$('admin-status');
+    if(!live){ st.textContent='Demo mode: no password needed.'; load(); return; }
+    var go=function(){ secret=pw; try{ localStorage.setItem('same.admin',secret); }catch(e){} fetch('/api/done?list=1',{headers:hdr(),cache:'no-store'}).then(function(r){return r.json()}).then(function(j){ st.textContent=j.error?j.error:'Unlocked on this browser.'; load(); }); };
+    if(!adminSet){ if(pw.length<8){ st.textContent='Pick a password of 8+ characters. This is the first visit, so it becomes your password.'; return; } fetch('/api/done',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({claim:pw})}).then(function(r){return r.json()}).then(function(j){ if(j.error){ st.textContent=j.error; return; } adminSet=true; $('unlock').textContent='Unlock'; go(); }); }
+    else go();
+  });
+  $('dlink-save').addEventListener('click',function(){ if(!sel) return; var v=$('dlink').value.trim(), st=$('w-status'); if(!live){ st.textContent='Demo: link noted.'; return; } fetch('/api/done',{method:'POST',headers:hdr(),body:JSON.stringify({k:sel.k,action:'delivery',link:v})}).then(function(r){return r.json()}).then(function(j){ st.textContent=j.error||'Link saved. The client sees an Open your videos button.'; }); });
   $('reload').addEventListener('click',load);
 
   /* delivered files go through the same upload pipe, into delivered/<key>/ */
-  function put(url,blob,onp,tries){ tries=tries||0; return new Promise(function(res,rej){ var x=new XMLHttpRequest(); x.open('PUT',url,true); x.upload.onprogress=function(e){ if(e.lengthComputable&&onp) onp(e.loaded/e.total); }; x.onload=function(){ if(x.status>=200&&x.status<300) res(x.getResponseHeader('ETag')||''); else rej(new Error('HTTP '+x.status)); }; x.onerror=function(){ rej(new Error('network')); }; x.send(blob); }).catch(function(e){ if(tries<3) return put(url,blob,onp,tries+1); throw e; }); }
+  function put(url,blob,onp,tries){ tries=tries||0; return new Promise(function(res,rej){ var x=new XMLHttpRequest(); x.open('PUT',url,true); if(secret) x.setRequestHeader('x-same-admin',secret); x.upload.onprogress=function(e){ if(e.lengthComputable&&onp) onp(e.loaded/e.total); }; x.onload=function(){ if(x.status>=200&&x.status<300) res(x.getResponseHeader('ETag')||''); else rej(new Error('HTTP '+x.status)); }; x.onerror=function(){ rej(new Error('network')); }; x.send(blob); }).catch(function(e){ if(tries<3) return put(url,blob,onp,tries+1); throw e; }); }
   function api(p){ return fetch('/api/upload',{method:'POST',headers:hdr(),body:JSON.stringify(p)}).then(function(r){ return r.json().then(function(j){ if(!r.ok||j.error) throw new Error(j.error||('HTTP '+r.status)); return j; }); }); }
   function tile(f){ var d=document.createElement('div'); d.className='file'; if(f.type.indexOf('image/')===0){ var im=document.createElement('img'); im.src=URL.createObjectURL(f); d.appendChild(im);} else if(f.type.indexOf('video/')===0){ var v=document.createElement('video'); v.src=URL.createObjectURL(f); v.muted=true; d.appendChild(v);} var nm=document.createElement('span'); nm.className='nm'; nm.textContent=f.name; d.appendChild(nm); var bar=document.createElement('span'); bar.className='bar'; var fill=document.createElement('i'); bar.appendChild(fill); d.appendChild(bar); $('files').appendChild(d); return {el:d,bar:fill}; }
   function upload(f){
     var t=tile(f);
     if(!live){ return new Promise(function(res){ var k=0; var iv=setInterval(function(){ k+=.15; t.bar.style.width=Math.min(100,k*100)+'%'; if(k>=1){ clearInterval(iv); t.el.classList.add('done'); res(); } },100); }); }
     return api({action:'start',name:f.name,size:f.size,type:f.type,deliver:sel.k}).then(function(st){
+      if(st.mode==='parts'){ var ch=Promise.resolve(),sent=0; for(var i=0;i<st.parts;i++){ (function(i){ ch=ch.then(function(){ var a=i*st.partSize,b=Math.min(f.size,a+st.partSize); return put(st.url+'&part='+i,f.slice(a,b),function(r){ t.bar.style.width=((sent+r*(b-a))/Math.max(1,f.size)*100)+'%'; }).then(function(){ sent+=(b-a); }); }); })(i); } return ch.then(function(){ return api({action:'complete',key:st.key}); }); }
       if(st.mode==='single') return put(st.url,f,function(r){ t.bar.style.width=(r*100)+'%'; });
       var parts=[],done=0,chain=Promise.resolve();
       st.urls.forEach(function(url,i){ chain=chain.then(function(){ var s=i*st.partSize,e=Math.min(f.size,s+st.partSize); return put(url,f.slice(s,e),function(r){ t.bar.style.width=((done+r*(e-s))/f.size*100)+'%'; }).then(function(etag){ done+=(e-s); parts.push({PartNumber:i+1,ETag:etag}); }); }); });
@@ -156,7 +165,11 @@
   $('ready').addEventListener('click',function(){ mark('ready'); });
   $('working').addEventListener('click',function(){ mark('working'); });
 
-  Same.hasPipe().then(function(p){ live=p; var info=Same.pipeInfo(); if(live&&!info.admin) $('admin-status').textContent='ADMIN_SECRET is not set in Netlify yet.'; if(!live){ $('adminrow').hidden=true; } load(); });
+  var adminSet=true;
+  Same.hasPipe().then(function(p){ live=p; var info=Same.pipeInfo(); adminSet=!!info.admin;
+    if(!live){ $('adminrow').hidden=true; }
+    else if(!adminSet){ $('admin-status').textContent='First visit: pick your password (8+ characters). Only you will know it.'; $('unlock').textContent='Set password'; }
+    load(); });
 })();
 </script>
 </body>

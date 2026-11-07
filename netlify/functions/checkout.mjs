@@ -5,7 +5,7 @@
 // Needs one environment variable in Netlify: STRIPE_SECRET_KEY (starts with sk_live_ or sk_test_)
 
 import Stripe from "stripe";
-import { r2Ready, getJSON, putJSON } from "../lib/r2.mjs";
+import { getJSON, putJSON } from "../lib/r2.mjs";
 
 const PLANS = {
   "Everything $500": { amount: 50000, name: "Same · Everything", description: "Up to 100 photos in 30 minutes, 6 clips, preview, listing audit, seasonal cover, WhatsApp line, unlimited fixes for 7 days" },
@@ -27,7 +27,7 @@ export default async (req) => {
     try {
       const s = await stripe.checkout.sessions.retrieve(id);
       const k = s.metadata && s.metadata.key;
-      if (s.payment_status === "paid" && k && r2Ready()) {
+      if (s.payment_status === "paid" && k) {
         try { const rec = await getJSON(`orders/${k}.json`); if (rec && !rec.paid) { rec.paid = true; rec.paidAt = Date.now(); await putJSON(`orders/${k}.json`, rec); } } catch {}
       }
       return json({ key: k || "", paid: s.payment_status === "paid", amount: s.amount_total, currency: s.currency, email: s.customer_details && s.customer_details.email, plan: s.metadata && s.metadata.plan, order: s.metadata && s.metadata.order });

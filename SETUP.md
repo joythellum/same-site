@@ -7,7 +7,26 @@ The site has four parts:
 - `netlify/functions/upload.mjs` — the upload pipe (files go straight from the client's browser into your storage)
 - `netlify/functions/checkout.mjs` — the payment (Stripe Checkout: card, Apple Pay, Google Pay)
 
-## 0. Go live, in order (30 minutes, about €10)
+## 0. Go live for free (15 minutes, €0, no card)
+
+Everything runs on free plans. No card anywhere. Storage, alert keys and your password are built in.
+
+1. **GitHub** (free): sign up at github.com. Make an empty private project called `same-site`. Claude pushes the site into it.
+2. **Netlify** (free): app.netlify.com/signup → *Sign up with GitHub*. Then app.netlify.com/start → GitHub → `same-site` → Deploy.
+   Site configuration → Change site name → `samestudio`. You are live at **https://samestudio.netlify.app**.
+3. **Your password**: open https://samestudio.netlify.app/done.html right away and pick a password (8+ characters). The first one set is the only one, so do it before you share the site.
+4. **Payments** (free until you sell): dashboard.stripe.com/register → Developers → API keys → copy the **Secret key** (test mode first, `sk_test_...`).
+   Netlify → Site configuration → Environment variables → add `STRIPE_SECRET_KEY` = that key → Deploys → Trigger deploy.
+
+That's it. Orders, uploads (up to 20 MB per file), the ready page, Download all and phone alerts all work.
+
+**Limits of the free setup:** files up to 20 MB each (every photo, short clips). Long videos: clients use "Just a link", and on done.html you paste a Drive/WeTransfer link for the finished videos. Want any size later? Add Cloudflare R2 (section 2; it asks for a card but stays free up to 10 GB).
+
+**Domain later:** when the first client pays, buy one (a .com is about $10/year) in Netlify → Domain management → Add a domain. Netlify connects it by itself.
+
+### Optional, any time
+
+### Own domain + email (when you have the money)
 
 **A. Hosting, free (Netlify)**
 1. app.netlify.com → Sign up with your Google account.
