@@ -121,6 +121,11 @@ export default async (req) => {
         await putJSON("cfg/owner-subs.json", cfg);
         return json({ ok: true, sent: await buzzOwner("Same", "Order alerts are on for this device.", `${origin}/done.html`) });
       }
+      if (b.action === "robot-key") {
+        let cfg = await getJSON("cfg/robot.json");
+        if (!cfg || b.reset) { cfg = { key: randomBytes(24).toString("hex"), at: Date.now() }; await putJSON("cfg/robot.json", cfg); }
+        return json({ ok: true, key: cfg.key });
+      }
       if (b.action === "owner") {
         const u = await getUser(normEmail(b.email));
         if (!u) return json({ error: "No account with that email yet. Sign up on the site first." }, 404);

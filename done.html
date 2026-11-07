@@ -66,6 +66,7 @@
   <div class="card yellow">
     <span class="pill big">Mark it done</span>
     <h1 class="d1" style="margin-top:18px">Drop the finished files. Press Ready. The phone buzzes.</h1>
+    <div class="row" style="margin-top:12px" id="robotrow" hidden><button class="btn ghost" id="robot-show">Show robot key</button><input type="text" id="robot-key" readonly placeholder="robot key" style="flex:1;min-width:220px" hidden><span class="status" id="robot-status"></span></div>
     <div class="row" style="margin-top:12px" id="ownerrow2" hidden><input type="text" id="owner-email" placeholder="Your account email" value="joythellum@gmail.com"><button class="btn" id="make-owner">Make it the owner (free orders)</button><span class="status" id="owner2-status"></span></div>
     <div class="row" style="margin-top:12px" id="ownerrow" hidden><button class="btn" id="ownerbuzz" style="background:var(--surface);color:var(--ink)">Buzz my phone on new orders</button><span class="status" id="owner-status"></span></div>
     <div class="row" style="margin-top:18px" id="adminrow"><input type="password" id="secret" placeholder="Your password"><button class="btn" id="unlock">Unlock</button><span class="status" id="admin-status"></span></div>
@@ -134,7 +135,7 @@
   }
   $('unlock').addEventListener('click',function(){ var pw=$('secret').value.trim(); var st=$('admin-status');
     if(!live){ st.textContent='Demo mode: no password needed.'; load(); return; }
-    var go=function(){ secret=pw; try{ localStorage.setItem('same.admin',secret); }catch(e){} fetch('/api/done?list=1',{headers:hdr(),cache:'no-store'}).then(function(r){return r.json()}).then(function(j){ st.textContent=j.error?j.error:'Unlocked on this browser.'; if(!j.error){ $('ownerrow').hidden=false; $('ownerrow2').hidden=false; } load(); }); };
+    var go=function(){ secret=pw; try{ localStorage.setItem('same.admin',secret); }catch(e){} fetch('/api/done?list=1',{headers:hdr(),cache:'no-store'}).then(function(r){return r.json()}).then(function(j){ st.textContent=j.error?j.error:'Unlocked on this browser.'; if(!j.error){ $('ownerrow').hidden=false; $('ownerrow2').hidden=false; $('robotrow').hidden=false; } load(); }); };
     if(!adminSet){ if(pw.length<8){ st.textContent='Pick a password of 8+ characters. This is the first visit, so it becomes your password.'; return; } fetch('/api/done',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({claim:pw})}).then(function(r){return r.json()}).then(function(j){ if(j.error){ st.textContent=j.error; return; } adminSet=true; $('unlock').textContent='Unlock'; go(); }); }
     else go();
   });
@@ -180,11 +181,12 @@
     }).catch(function(e){ st.textContent='Could not turn on alerts: '+(e.message||e); });
   });
   $('make-owner').addEventListener('click',function(){ var st=$('owner2-status'); st.textContent='…'; fetch('/api/done',{method:'POST',headers:hdr(),body:JSON.stringify({action:'owner',email:$('owner-email').value.trim()})}).then(function(r){return r.json()}).then(function(j){ st.textContent=j.error||('Done. '+j.owner+' orders for free now.'); }); });
+  $('robot-show').addEventListener('click',function(){ var st=$('robot-status'); st.textContent='…'; fetch('/api/done',{method:'POST',headers:hdr(),body:JSON.stringify({action:'robot-key'})}).then(function(r){return r.json()}).then(function(j){ if(j.error){ st.textContent=j.error; return; } $('robot-key').value=j.key; $('robot-key').hidden=false; $('robot-key').select(); st.textContent='Copy it and paste it to Claude.'; }); });
   var adminSet=true;
   Same.hasPipe().then(function(p){ live=p; var info=Same.pipeInfo(); adminSet=!!info.admin;
     if(!live){ $('adminrow').hidden=true; }
     else if(!adminSet){ $('admin-status').textContent='First visit: pick your password (8+ characters). Only you will know it.'; $('unlock').textContent='Set password'; }
-    if(live&&adminSet&&secret){ $('ownerrow').hidden=false; $('ownerrow2').hidden=false; }
+    if(live&&adminSet&&secret){ $('ownerrow').hidden=false; $('ownerrow2').hidden=false; $('robotrow').hidden=false; }
     load(); });
 })();
 </script>
