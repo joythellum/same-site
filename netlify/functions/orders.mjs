@@ -46,6 +46,21 @@ async function buzz(rec, origin) {
   return sent;
 }
 
+async function buzzOwner(rec, origin) {
+  const cfg = (await getJSON("cfg/owner-subs.json")) || { subs: [] };
+  if (!cfg.subs.length) return 0;
+  await push();
+  const what = rec.link ? "link" : rec.files ? "files" : rec.brief ? "an idea" : "an order";
+  const payload = JSON.stringify({ title: "New order · " + (rec.place || "Same"), body: `${rec.plan || ""} · ${rec.name || ""} sent ${what}. Clock is running.`, url: `${origin}/done.html` });
+  let sent = 0; const keep = [];
+  for (const sub of cfg.subs) {
+    try { await webpush.sendNotification(sub, payload); sent++; keep.push(sub); }
+    catch (e) { if (e.statusCode !== 404 && e.statusCode !== 410) keep.push(sub); }
+  }
+  if (keep.length !== cfg.subs.length) await putJSON("cfg/owner-subs.json", { subs: keep });
+  return sent;
+}
+
 export default async (req) => {
   const url = new URL(req.url);
   const path = url.pathname.replace(/\/+$/, "");
@@ -54,19 +69,28 @@ export default async (req) => {
   try {
     if (path.endsWith("/ready") && url.searchParams.get("ping")) {
       const a = await adminState();
-      return json({ ok: true, r2: true, bigFiles: r2Ready(), push: true, admin: a.set });
+      return json({ ok: true, r2: true, bigFiles: r2Ready(), push: true, admin: a.set, vapid: await push() });
     }
 
     if (path.endsWith("/order") && req.method === "POST") {
       const b = await req.json();
+      if (b.action === "owner-sub") {
+        if (!b.sub || !b.sub.endpoint) return json({ error: "Bad subscription" }, 400);
+        const cfg = (await getJSON("cfg/owner-subs.json")) || { subs: [] };
+        cfg.subs = cfg.subs.filter((x) => x.endpoint !== b.sub.endpoint).concat([b.sub]).slice(-10);
+        await putJSON("cfg/owner-subs.json", cfg);
+        const sent = await buzzOwner({ place: "Test", plan: "Alerts are on", name: "Same", brief: "x" }, origin);
+        return json({ ok: true, sent });
+      }
       if (!validKey(b.k)) return json({ error: "Bad key" }, 400);
       if (await getJSON(REC(b.k))) return json({ ok: true, k: b.k });
       const created = Date.now(), cut = (v, n) => String(v || "").slice(0, n);
       await putJSON(REC(b.k), {
         k: b.k, order: cut(b.order, 40), plan: cut(b.plan, 60), place: cut(b.place, 200), name: cut(b.name, 120), email: cut(b.email, 200),
-        link: cut(b.link, 1000), brief: cut(b.brief, 4000), files: cut(b.files, 20000), kind: cut(b.kind || "order", 40),
+        link: cut(b.link, 1000), brief: cut(b.brief, 4000), notes: cut(b.notes, 2000), files: cut(b.files, 20000), kind: cut(b.kind || "order", 40),
         created, eta: created + etaMinutes(b.plan) * 60000, status: "working", paid: false, subs: [],
       });
+      try { await buzzOwner(await getJSON(REC(b.k)), origin); } catch {}
       return json({ ok: true, k: b.k });
     }
 

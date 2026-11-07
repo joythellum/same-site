@@ -66,6 +66,7 @@
   <div class="card yellow">
     <span class="pill big">Mark it done</span>
     <h1 class="d1" style="margin-top:18px">Drop the finished files. Press Ready. The phone buzzes.</h1>
+    <div class="row" style="margin-top:12px" id="ownerrow" hidden><button class="btn" id="ownerbuzz" style="background:var(--surface);color:var(--ink)">Buzz my phone on new orders</button><span class="status" id="owner-status"></span></div>
     <div class="row" style="margin-top:18px" id="adminrow"><input type="password" id="secret" placeholder="Your password"><button class="btn" id="unlock">Unlock</button><span class="status" id="admin-status"></span></div>
   </div>
 
@@ -130,7 +131,7 @@
   }
   $('unlock').addEventListener('click',function(){ var pw=$('secret').value.trim(); var st=$('admin-status');
     if(!live){ st.textContent='Demo mode: no password needed.'; load(); return; }
-    var go=function(){ secret=pw; try{ localStorage.setItem('same.admin',secret); }catch(e){} fetch('/api/done?list=1',{headers:hdr(),cache:'no-store'}).then(function(r){return r.json()}).then(function(j){ st.textContent=j.error?j.error:'Unlocked on this browser.'; load(); }); };
+    var go=function(){ secret=pw; try{ localStorage.setItem('same.admin',secret); }catch(e){} fetch('/api/done?list=1',{headers:hdr(),cache:'no-store'}).then(function(r){return r.json()}).then(function(j){ st.textContent=j.error?j.error:'Unlocked on this browser.'; if(!j.error) $('ownerrow').hidden=false; load(); }); };
     if(!adminSet){ if(pw.length<8){ st.textContent='Pick a password of 8+ characters. This is the first visit, so it becomes your password.'; return; } fetch('/api/done',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({claim:pw})}).then(function(r){return r.json()}).then(function(j){ if(j.error){ st.textContent=j.error; return; } adminSet=true; $('unlock').textContent='Unlock'; go(); }); }
     else go();
   });
@@ -165,10 +166,20 @@
   $('ready').addEventListener('click',function(){ mark('ready'); });
   $('working').addEventListener('click',function(){ mark('working'); });
 
+  function b64u(x){ var p='='.repeat((4-x.length%4)%4); var r=atob((x+p).replace(/-/g,'+').replace(/_/g,'/')); var a=new Uint8Array(r.length); for(var i=0;i<r.length;i++) a[i]=r.charCodeAt(i); return a; }
+  $('ownerbuzz').addEventListener('click',function(){ var st=$('owner-status'); st.textContent='…';
+    var vk=(Same.pipeInfo()||{}).vapid; if(!vk||!('serviceWorker' in navigator)||!('PushManager' in window)){ st.textContent='This browser can\'t get alerts. On iPhone: Share → Add to Home Screen, open Same from there, then tap again.'; return; }
+    Notification.requestPermission().then(function(p){ if(p!=='granted'){ st.textContent='Alerts were not allowed.'; return; }
+      return navigator.serviceWorker.register('sw.js').then(function(reg){ return navigator.serviceWorker.ready.then(function(){ return reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:b64u(vk)}); }); })
+      .then(function(sub){ return fetch('/api/done',{method:'POST',headers:hdr(),body:JSON.stringify({action:'owner-sub',sub:sub})}).then(function(r){return r.json()}); })
+      .then(function(j){ st.textContent=j.error?j.error:('Done. You should feel a test buzz now. Every new order buzzes this device.'); if(!j.error) $('ownerbuzz').textContent='Order alerts on ✓'; });
+    }).catch(function(e){ st.textContent='Could not turn on alerts: '+(e.message||e); });
+  });
   var adminSet=true;
   Same.hasPipe().then(function(p){ live=p; var info=Same.pipeInfo(); adminSet=!!info.admin;
     if(!live){ $('adminrow').hidden=true; }
     else if(!adminSet){ $('admin-status').textContent='First visit: pick your password (8+ characters). Only you will know it.'; $('unlock').textContent='Set password'; }
+    if(live&&adminSet&&secret) $('ownerrow').hidden=false;
     load(); });
 })();
 </script>

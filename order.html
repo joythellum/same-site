@@ -350,15 +350,18 @@
       if(failed){ btn.disabled=false; var big=picked.filter(function(p){return p.tooBig}).length; status.textContent=big?(big+' file'+(big>1?'s are':' is')+' over 20 MB. Remove '+(big>1?'them':'it')+' and paste a Drive or WeTransfer link in "Just a link" instead.'):(failed+' file'+(failed>1?'s':'')+' did not upload. Tap Send again to retry, or email them to hello@samestudio.co.'); return; }
       status.textContent='Saving your order…';
       if(preview){ remember(); setTimeout(function(){ btn.disabled=false; status.textContent=''; showThanks('Test order saved in this browser (nothing was charged; on the live site you would now pay '+planPrice()+' on Stripe). Close the tab, come back, the site remembers you.'); },500); return; }
-      var fd=new FormData(form);
-      return fetch(form.getAttribute('action')||'/',{method:'POST',body:fd}).then(function(r){
-        btn.disabled=false;
-        if(!r.ok){ btn.disabled=false; status.textContent='Something went wrong. Email us at hello@samestudio.co and we\'ll take it from there.'; return; }
+      var plan=(form.querySelector('input[name=plan]:checked')||{}).value, notes=((form.querySelector('textarea[name=notes]')||{value:''}).value||'').trim();
+      remember({name:nm});
+      /* the order is saved on our side first; payment comes after */
+      return fetch('/api/order',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({k:orderKey,order:orderId,plan:plan,place:place,name:nm,email:email,kind:'order',link:link,brief:brief,notes:notes,files:filesField.value})}).then(function(r){return r.json()}).then(function(o){
+        if(!o||!o.ok){ btn.disabled=false; status.textContent=((o&&o.error)||'Could not save the order.')+' Email us at hello@samestudio.co and we\'ll take it from there.'; return; }
         status.textContent='Taking you to the payment…';
-        var plan=(form.querySelector('input[name=plan]:checked')||{}).value;
-        remember({name:nm});
-        fetch('/api/order',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({k:orderKey,order:orderId,plan:plan,place:place,name:nm,email:email,kind:'order',link:link,brief:brief,files:filesField.value})}).catch(function(){});
-        return fetch('/api/checkout',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({plan:plan,email:email,place:place,order:orderId,key:orderKey,page:'order'})}).then(function(r){return r.json()}).then(function(j){ if(j.url){ location.href=j.url; } else { btn.disabled=false; status.textContent=(j.error||'Payment page did not open.')+' Your files are saved. Email hello@samestudio.co and we will send you a payment link.'; } });
+        return fetch('/api/checkout',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({plan:plan,email:email,place:place,order:orderId,key:orderKey,page:'order'})}).then(function(r){return r.json()}).then(function(j){
+          if(j.url){ location.href=j.url; return; }
+          btn.disabled=false; status.textContent='';
+          if(/not set up/i.test(j.error||'')){ showThanks('Order '+orderId+' is in. Payments are not switched on yet, so nothing was charged. Close the tab and come back any time: the site remembers you.'); return; }
+          status.textContent=(j.error||'Payment page did not open.')+' Your order is saved. Email hello@samestudio.co and we will send you a payment link.';
+        });
       }).catch(function(){ btn.disabled=false; status.textContent='No connection. Email us at hello@samestudio.co and we\'ll take it from there.'; });
     });
   });
