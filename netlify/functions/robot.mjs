@@ -75,7 +75,16 @@ async function listItems(link) {
   for (const m of html.matchAll(/<img[^>]+?(?:data-src|data-lazy-src|src)=["']([^"']+)["']/gi)) add(m[1]);
   for (const m of html.matchAll(/srcset=["']([^"']+)["']/gi)) { const best = m[1].split(",").map((s) => s.trim().split(/\s+/)).sort((a, b) => parseInt(b[1] || 0) - parseInt(a[1] || 0))[0]; if (best) add(best[0]); }
   for (const m of html.matchAll(/url\(["']?(https?:[^"')]+\.(?:jpe?g|png|webp))["']?\)/gi)) add(m[1]);
-  const items = found.filter((x) => !/\.svg(\?|$)/i.test(x)).slice(0, MAX_ITEMS * 2).map((x, i) => ({ url: x, name: decodeURIComponent(new URL(x).pathname.split("/").pop() || `photo-${i + 1}`), web: true }));
+  // one copy per picture: galleries ship the same photo as 370-x.jpg, 480-x.jpg, 1024-x.jpg or x-300x200.jpg; keep the biggest
+  const sizeOf = (f) => Math.max(0, ...[...f.matchAll(/(?:^|[-_x])(\d{2,4})(?=[-_x.]|$)/g)].map((m) => parseInt(m[1])));
+  const bare = (f) => f.replace(/\.[a-z0-9]{2,5}$/i, "").replace(/^\d{2,4}[-_]/, "").replace(/[-_]\d{2,4}x\d{2,4}$/, "").replace(/[-_](?:\d{2,4}w?|thumb|small|medium|large|scaled)$/i, "");
+  const best = new Map();
+  for (const x of found.filter((x) => !/\.svg(\?|$)/i.test(x))) {
+    const f = decodeURIComponent(new URL(x).pathname.split("/").pop() || ""), k = (bare(f) || f).toLowerCase();
+    const cur = best.get(k);
+    if (!cur || sizeOf(f) > cur.size) best.set(k, { url: x, name: f || `photo-${best.size + 1}`, size: sizeOf(f) });
+  }
+  const items = [...best.values()].slice(0, MAX_ITEMS * 2).map(({ url, name }) => ({ url, name, web: true }));
   if (!items.length) throw new Error(/instagram\.com|facebook\.com|tiktok\.com/.test(host) ? "Instagram, Facebook and TikTok block robots. Ask the client for a Drive folder or to upload the files." : "No pictures found on that page.");
   return { kind: "web", items };
 }
